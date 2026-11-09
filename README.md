@@ -166,12 +166,13 @@ DB_SSLMODE="require"
 
 **5. Comprobar en Supabase**
 
-Para generar la evidencia de la conexión (motor, SSL, tablas y últimos usuarios) en `docs/evidencias/`:
+Para ver el estado de la conexión (motor, SSL, migraciones pendientes, tablas y últimos usuarios):
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py verificar_bd --guardar
+.\.venv\Scripts\python.exe manage.py verificar_bd
 ```
 
+Agrega `--guardar CARPETA` si quieres guardar el resultado en un archivo de texto.
 
 1. Registra un usuario **nuevo** desde Idearia (<http://127.0.0.1:8001/registro/>).
 2. En Supabase abre **Table Editor > public > usuarios_usuario** y verifica que aparece la fila.
@@ -236,19 +237,6 @@ $env:DB_ENGINE="sqlite"; .\.venv\Scripts\python.exe manage.py test
 
 La segunda forma muestra el detalle de cada caso. Las pruebas usan una base de datos temporal y una carpeta temporal para los archivos: no modifican tus datos.
 
-**Prueba de carga** (con el servidor corriendo y los datos de demostración cargados):
-
-```powershell
-.\.venv\Scripts\python.exe scripts\prueba_carga.py --usuarios 10 --peticiones 20
-.\.venv\Scripts\python.exe scripts\prueba_carga.py --usuarios 25 --peticiones 20
-```
-
-Los resultados se guardan en `docs/evidencias/` (CSV con el detalle y resumen en Markdown).
-
-**Recorrido en navegador (opcional):** `scripts\recorrido_navegador.py` genera capturas de las pantallas con Microsoft Edge. Requiere `pip install playwright`, que no está en `requirements.txt`.
-
-El plan de pruebas completo, con resultados y análisis, está en [docs/02_plan_de_pruebas.md](docs/02_plan_de_pruebas.md).
-
 ## Estructura del proyecto
 
 ```
@@ -262,10 +250,9 @@ idearia/
 ├── notificaciones/    Notificaciones internas
 ├── templates/         Plantillas HTML (base, errores 403/404/500 y una carpeta por app)
 ├── static/            CSS, JavaScript, íconos y PDF.js
-├── scripts/           Prueba de carga y recorrido en navegador
-├── docs/              Documentación, plan de pruebas y evidencias
-├── media_protegida/   Archivos subidos (NO se sube a Git, sin URL pública)
+├── media_protegida/   Archivos subidos en desarrollo (NO se sube a Git, sin URL pública)
 ├── .env.example       Plantilla de variables de entorno (sin credenciales)
+├── render.yaml        Configuración del despliegue en Render
 └── requirements.txt
 ```
 
@@ -324,12 +311,4 @@ Para producción se recomienda un servidor WSGI como `waitress` o `gunicorn` en 
 | Ves `Motor: sqlite` en vez de `postgresql` | `DB_ENGINE` sigue en `"sqlite"` o `.env` no está en la carpeta de `manage.py`. |
 | Errores de *acceso denegado* al instalar paquetes | OneDrive está sincronizando `.venv`. Pausa la sincronización mientras instalas o ubica el proyecto fuera de OneDrive. |
 | Después de 5 intentos no puedo iniciar sesión | Bloqueo de seguridad temporal (15 minutos). Espera o reinicia el servidor en desarrollo. |
-| La planificación no se muestra en el visor | El archivo no es un PDF o DOCX válido o se borró de `media_protegida/`. Vuelve a adjuntarlo. |
-
-## Documentación adicional
-
-- [docs/01_implementacion.md](docs/01_implementacion.md): arquitectura, modelos, seguridad y decisiones técnicas.
-- [docs/02_plan_de_pruebas.md](docs/02_plan_de_pruebas.md): plan de pruebas, resultados, discrepancias y recomendaciones.
-- [docs/pruebas/matriz_pruebas_E3.csv](docs/pruebas/matriz_pruebas_E3.csv): matriz completa de casos (todas las columnas).
-- [docs/03_trazabilidad.md](docs/03_trazabilidad.md): requisitos ↔ implementación ↔ pruebas.
-- [docs/04_preparacion_defensa.md](docs/04_preparacion_defensa.md): preguntas técnicas frecuentes.
+| La planificación no se muestra en el visor | El archivo no es un PDF o DOCX válido o se borró (de `media_protegida/` o de la tabla `core_archivoalmacenado`, según `ALMACENAMIENTO_ARCHIVOS`). Vuelve a adjuntarlo. |

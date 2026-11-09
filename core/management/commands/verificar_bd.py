@@ -3,16 +3,15 @@ Verifica la conexión de Django con la base de datos y, opcionalmente, guarda la
 
 Uso:
     .\\.venv\\Scripts\\python.exe manage.py verificar_bd
-    .\\.venv\\Scripts\\python.exe manage.py verificar_bd --guardar
+    .\\.venv\\Scripts\\python.exe manage.py verificar_bd --guardar C:\\ruta\\a\\una\\carpeta
 
-Con --guardar crea docs/evidencias/verificacion_bd_<motor>_<fecha>.txt
-(evidencia de los casos CP-054 y CP-055). Nunca muestra usuario ni contraseña de la BD.
+Con --guardar crea verificacion_bd_<motor>_<fecha>.txt en la carpeta indicada
+(o en la carpeta actual). Nunca muestra usuario ni contraseña de la BD.
 """
 
 from datetime import datetime
 from pathlib import Path
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
@@ -30,7 +29,10 @@ class Command(BaseCommand):
     help = "Muestra el motor de BD, el estado de las migraciones y los registros de Idearia."
 
     def add_arguments(self, parser):
-        parser.add_argument("--guardar", action="store_true", help="Guarda el resultado en docs/evidencias/")
+        parser.add_argument(
+            "--guardar", nargs="?", const=".", metavar="CARPETA",
+            help="Guarda el resultado en un archivo de texto (por defecto, en la carpeta actual)",
+        )
 
     def handle(self, *args, **opciones):
         connection.ensure_connection()
@@ -77,7 +79,7 @@ class Command(BaseCommand):
         self.stdout.write(texto)
 
         if opciones["guardar"]:
-            carpeta = Path(settings.BASE_DIR) / "docs" / "evidencias"
+            carpeta = Path(opciones["guardar"])
             carpeta.mkdir(parents=True, exist_ok=True)
             archivo = carpeta / f"verificacion_bd_{connection.vendor}_{datetime.now():%Y%m%d_%H%M%S}.txt"
             archivo.write_text(texto + "\n", encoding="utf-8")
