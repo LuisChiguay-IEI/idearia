@@ -30,6 +30,20 @@ Cada **componente del diagrama de componentes de la Evaluación 2** corresponde 
 
 Las vistas son **funciones** (no clases) para que cada paso sea fácil de leer y explicar. La excepción son el login y el logout, que reutilizan las vistas seguras de Django.
 
+### Despliegue (producción)
+
+Corresponde al diagrama de despliegue de la Evaluación 2:
+
+```
+Navegador --HTTPS--> Render (Oregón): gunicorn + Django + whitenoise --SSL--> Supabase (Oregón): PostgreSQL 17
+                          ^                                                  (datos + archivos)
+                   GitHub (código, rama main)
+```
+
+- **URL:** <https://idearia.onrender.com>. Configuración en `render.yaml`; cada `git push` vuelve a desplegar.
+- **Por qué los archivos van en la base de datos:** el disco del plan gratuito de Render se borra al reiniciar. La clase `core/almacenamiento.py: AlmacenamientoBD` implementa la interfaz *Storage* de Django, así que el resto del código (FileField, visor, validaciones) no cambió. En desarrollo se puede seguir usando el disco (`ALMACENAMIENTO_ARCHIVOS="disco"`).
+- **Por qué Oregón:** la base de Supabase está en us-west-2. Con la aplicación al lado, cada consulta tarda ~1 ms en vez de 0,2 s, y la búsqueda bajó de 2,7 s a 0,37 s.
+
 ## 2. Modelo de datos
 
 ### 2.1 Diagrama entidad-relación

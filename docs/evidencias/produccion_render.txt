@@ -1,0 +1,38 @@
+# Despliegue en producción · Render + Supabase (CP-063, CP-064, CP-065) · 2026-11-09
+# URL pública: https://idearia.onrender.com
+# Servidor: Render, plan Free, región Oregón · gunicorn (2 workers) · Python 3.12.10 · DEBUG=False
+# Base de datos: Supabase us-west-2 (Oregón), PostgreSQL 17, Session pooler + SSL, usuario idearia_app
+# Archivos: tabla core_archivoalmacenado en Supabase (ALMACENAMIENTO_ARCHIVOS=bd)
+# Código desplegado desde GitHub: https://github.com/LuisChiguay-IEI/idearia (rama main)
+
+## 1. Verificación HTTP (curl)
+200  /ingresar/
+302  /                     (sin sesión -> login)
+200  /static/css/idearia.css (servido por whitenoise)
+302  /administracion/      (sin sesión -> login)
+404  /ruta-inexistente/    (página 404 propia)
+http://idearia.onrender.com/ingresar/ -> 301 -> https://idearia.onrender.com/ingresar/
+
+Cabeceras de seguridad recibidas:
+  strict-transport-security: max-age=31536000; includeSubDomains
+  content-security-policy: default-src 'self'; script-src 'self'; ... frame-ancestors 'none'; ...
+  x-frame-options: DENY
+  x-content-type-options: nosniff
+  referrer-policy: same-origin
+  Set-Cookie csrftoken: Secure; SameSite=Lax
+
+## 2. Recorrido en navegador (scripts/recorrido_navegador.py --url https://idearia.onrender.com)
+3 perfiles + móvil 390 px: sin errores de JavaScript, CSP ni HTTP >= 400; sin desplazamiento horizontal.
+Visor PDF: planificación leída desde Supabase y dibujada con PDF.js (captura 21).
+
+## 3. Rendimiento desde Chile (scripts/prueba_carga.py)
+1 usuario x 20:   prom 0,369 s · mediana 0,344 s · p95 0,425 s · máx 0,717 s · 0 errores -> OK
+5 usuarios x 20:  prom 0,994 s · mediana 0,965 s · p95 1,333 s · máx 2,457 s · 0 errores -> OK
+10 usuarios x 20: prom 1,933 s · mediana 1,894 s · p95 2,402 s · máx 2,788 s · 0 errores -> NO OK
+(carga_1u_20p_20261109_033836.*, carga_5u_20p_20261109_034035.*, carga_10u_20p_20261109_033943.*)
+
+## 4. Análisis
+- Con la app y la base en la misma región, una búsqueda pasó de 2,7 s (PC en Chile -> Supabase) a 0,37 s.
+- El rendimiento máximo se estabiliza en ~3 peticiones/s: la CPU del plan gratuito de Render se satura.
+  Hasta 5 usuarios simultáneos se cumple RNF-01; con 10 la cola supera los 2 s.
+- Recomendación: plan con más CPU para uso real, o reducir el costo de renderizado (caché de fragmentos).

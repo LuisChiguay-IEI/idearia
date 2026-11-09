@@ -8,6 +8,8 @@ Idearia es una plataforma web para **Educación Parvularia**. Permite que Educad
 
 Proyecto Integrado · Evaluación Sumativa N.º 3 · INACAP
 
+**Aplicación publicada:** <https://idearia.onrender.com>. En el plan gratuito, la primera visita después de 15 minutos sin uso tarda cerca de un minuto en cargar.
+
 ---
 
 ## Contenido
@@ -266,6 +268,21 @@ idearia/
 ├── .env.example       Plantilla de variables de entorno (sin credenciales)
 └── requirements.txt
 ```
+
+## Publicar en Render (producción)
+
+Idearia está desplegada en **Render** (servidor de aplicación) y conectada a **Supabase** (base de datos y archivos). El archivo `render.yaml` define el servicio, en la región Oregón, junto a la base de datos.
+
+1. Sube el código a GitHub (rama `main`).
+2. En <https://dashboard.render.com> elige **New + > Blueprint** y selecciona el repositorio.
+3. Completa `DB_USER` y `DB_PASSWORD` con los valores de tu `.env`. El resto viene en `render.yaml`, y `SECRET_KEY` la genera Render.
+4. Presiona **Deploy Blueprint**. Render ejecuta `pip install`, `collectstatic` y `migrate`, e inicia `gunicorn`.
+5. Cada `git push` a `main` vuelve a desplegar automáticamente.
+
+Notas de producción:
+- `whitenoise` sirve los estilos y el JavaScript.
+- Los archivos subidos se guardan en la base de datos (`ALMACENAMIENTO_ARCHIVOS="bd"`), porque el disco gratuito de Render se borra al reiniciar.
+- Las variables `RENDER_EXTERNAL_HOSTNAME` y `USAR_PROXY_HTTPS` configuran el dominio y HTTPS.
 
 ## Producción y HTTPS
 

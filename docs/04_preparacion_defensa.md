@@ -62,6 +62,14 @@ Se aplicaron dos correcciones: desactivar los cursores del servidor (recomendado
 
 La solución definitiva es poner el servidor de la aplicación en la misma región que la base. → `docs/evidencias/rendimiento_supabase.txt`
 
+**11d. ¿Dónde está publicada y cómo se despliega?**
+En <https://idearia.onrender.com>.
+- **GitHub** guarda el código.
+- **Render** lo ejecuta (gunicorn + Django) y vuelve a desplegar en cada `git push`.
+- **Supabase** guarda los datos y los archivos.
+
+Render y Supabase están en la misma región (Oregón) para que las consultas sean rápidas. Los archivos se guardan en la base, porque el disco gratuito de Render se borra al reiniciar. → `render.yaml`, `core/almacenamiento.py`
+
 **12. ¿Por qué hay una migración de datos?**
 Para que `migrate` deje cargados los ámbitos y núcleos de las Bases Curriculares, las categorías y los materiales en cualquier base, incluida Supabase. → `planificaciones/migrations/0002_catalogos_iniciales.py`
 
@@ -116,6 +124,8 @@ Sí: una redirección abierta (*open redirect*), un favorito imposible de quitar
 ---
 
 ## Demostración sugerida (5–7 minutos)
+
+0. Abrir **https://idearia.onrender.com** unos minutos antes, para que el servidor gratuito despierte.
 
 1. `manage.py verificar_bd` → `postgresql`, SSL activo, y las tablas en el *Table Editor* de Supabase (con RLS activo).
 2. Registro de un usuario nuevo → la fila aparece en Supabase.

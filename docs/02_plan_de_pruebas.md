@@ -3,7 +3,7 @@
 Evaluación Sumativa N.º 3 · Proyecto Integrado · INACAP
 Fecha de ejecución: **2026-11-09** · Responsable: Luis Chiguay
 
-Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen incluidos) a **62 casos**. Cada caso ejecutado registra el resultado esperado, el obtenido, su estado y su evidencia. Los resultados provienen de ejecuciones reales; los casos que aún no se han podido ejecutar aparecen como **No ejecutado**.
+Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen incluidos) a **65 casos**. Cada caso ejecutado registra el resultado esperado, el obtenido, su estado y su evidencia. Los resultados provienen de ejecuciones reales; los casos que aún no se han podido ejecutar aparecen como **No ejecutado**.
 
 **Matriz completa** (las 15 columnas: ID, funcionalidad, tipo, descripción, precondición, datos, esperado, obtenido, estado, evidencia, observaciones, posible defecto, recomendación, fecha y responsable):
 
@@ -30,6 +30,7 @@ Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen 
 |---|---|
 | Sistema operativo | Windows 11 Enterprise |
 | Python / Django | 3.12.10 / 5.2.19 |
+| Producción | **https://idearia.onrender.com**: Render plan Free (Oregón), gunicorn, `DEBUG=False`, código desde GitHub |
 | Base de datos | SQLite 3 (desarrollo), PostgreSQL 15.19 (contenedor Docker local) y **Supabase**: PostgreSQL 17, región us-west-2, Session pooler con SSL, rol propio `idearia_app` |
 | Navegador | Microsoft Edge (Chromium), modo sin interfaz |
 | Servidor (carga) | `runserver` de Django, un proceso, con datos de demostración (13 propuestas, 5 usuarios) |
@@ -39,12 +40,13 @@ Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen 
 
 | Indicador | Valor |
 |---|---|
-| Casos del plan | **62** |
-| Ejecutados | **61** (98,4 %) |
-| OK | **60** (98,4 % de los ejecutados) |
-| NO OK | **1**: CP-061, rendimiento con Supabase usando el servidor de desarrollo (ver D-11; mitigado en CP-062) |
+| Casos del plan | **65** |
+| Ejecutados | **64** (98,5 %) |
+| OK | **62** (96,9 % de los ejecutados) |
+| NO OK | **2**: CP-061, rendimiento desde un PC en Chile contra Supabase (resuelto en producción, CP-064); CP-065, 10 usuarios simultáneos en el plan gratuito de Render (D-13) |
 | No ejecutado | **1**: CP-059, usabilidad con 5 personas (protocolo listo) |
-| Pruebas automatizadas | **104 métodos**: OK en SQLite; 102/102 OK en PostgreSQL 15 local |
+| Pruebas automatizadas | **106 métodos**: OK en SQLite; 102/102 OK en PostgreSQL 15 local |
+| Producción | Publicada en https://idearia.onrender.com con HTTPS; recorrido sin errores (CP-063) |
 | Integración con Supabase | Migraciones, datos, registro visible en Supabase (CP-055) y RLS activo en las 23 tablas |
 
 | Tipo | Casos | OK | NO OK | No ejecutado |
@@ -53,9 +55,9 @@ Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen 
 | Seguridad | 17 | 17 | 0 | 0 |
 | Caso borde | 11 | 11 | 0 | 0 |
 | Integración | 4 | 4 | 0 | 0 |
-| Rendimiento | 3 | 2 | 1 | 0 |
+| Rendimiento | 5 | 3 | 2 | 0 |
 | Usabilidad | 1 | 0 | 0 | 1 |
-| Sistema (E2E) | 1 | 1 | 0 | 0 |
+| Sistema (E2E) | 2 | 2 | 0 | 0 |
 
 ### Prueba de rendimiento (CP-058, RNF-01: búsquedas en 2 s o menos)
 
@@ -85,6 +87,18 @@ Optimizaciones aplicadas a partir de esta medición:
 2. Caché de los catálogos de filtros.
 
 Evidencia: `docs/evidencias/rendimiento_supabase.txt`, `docs/evidencias/carga_*.md` (resumen) y `carga_*.csv` (cada petición).
+
+### Rendimiento en producción (CP-064, CP-065)
+
+Sitio publicado en Render (Oregón), junto a Supabase (Oregón), medido desde Chile por internet:
+
+| Escenario | Promedio | Mediana | p95 | Máximo | Errores | Peticiones/s | RNF-01 |
+|---|---:|---:|---:|---:|---:|---:|:-:|
+| 1 usuario x 20 | 0,369 s | 0,344 s | 0,425 s | 0,717 s | 0 | 1,8 | **OK** |
+| 5 usuarios x 20 | 0,994 s | 0,965 s | 1,333 s | 2,457 s | 0 | 2,8 | **OK** |
+| 10 usuarios x 20 | 1,933 s | 1,894 s | 2,402 s | 2,788 s | 0 | 3,0 | NO OK |
+
+Evidencia: `docs/evidencias/produccion_render.txt`.
 
 ## 4. Casos y resultados
 
@@ -154,6 +168,9 @@ Vista compacta. El detalle de precondiciones, datos, evidencia y recomendaciones
 | CP-060 | Recorrido en navegador real por las pantallas de los 3 perfiles | Sistema (E2E) | 0 errores; ancho en móvil 390 px; 18 capturas | **OK** |
 | CP-061 | Búsquedas contra Supabase con el servidor de desarrollo | Rendimiento | Antes de optimizar: p95 7,07 s (1 u) y 6,11 s (10 u). Tras optimizar: p95 3,08 s (1 u) y 2,64 s (10 u). 0 errores | **NO OK** |
 | CP-062 | Búsquedas contra Supabase con conexiones persistentes (configuración de producción) | Rendimiento | 7 consultas por búsqueda; prom. 1,541 s, mediana 1,459 s, p95 1,957 s, máx. 2,148 s | **OK** |
+| CP-063 | Aplicación publicada en Render, conectada a Supabase | Sistema (E2E) | HTTP 301→HTTPS; HSTS, CSP, X-Frame-Options DENY, nosniff, cookies Secure; 404 propia; recorrido sin errores JS/CSP/HTTP; visor PDF leído desde Supabase | **OK** |
+| CP-064 | Búsquedas en el sitio publicado con 1 y 5 usuarios | Rendimiento | 1 u: prom. 0,369 s, p95 0,425 s · 5 u: prom. 0,994 s, p95 1,333 s · 0 errores | **OK** |
+| CP-065 | Búsquedas en el sitio publicado con 10 usuarios simultáneos | Rendimiento | prom. 1,933 s, p95 2,402 s, máx. 2,788 s, 0 errores; ~3 peticiones/s | **NO OK** |
 
 ## 5. Comparación esperado vs. obtenido: discrepancias encontradas
 
@@ -171,7 +188,8 @@ Durante la construcción y la ejecución de pruebas aparecieron estas diferencia
 | D-08 | Diseño E2 vs. E3 | Matriz E2: el Colaborador no usa favoritos ni valoraciones; formatos .doc/.docx/.pdf | El Colaborador conserva sus funciones de Educador/a; .doc no se acepta | Informativa | Decisión documentada (01_implementacion §6 y §12) | Aceptado |
 | D-09 | CP-058 carga | Tiempo estable al aumentar usuarios | La latencia crece en forma lineal (p95 0,19 s → 1,11 s de 10 a 50 usuarios); techo de ~50 peticiones/s | Media (escala) | Ver recomendaciones R-02 y R-03 | Pendiente |
 | D-10 | CP-059 | Todos los casos ejecutados | La usabilidad requiere 5 participantes reales | — | Protocolo y planilla en `pruebas/protocolo_usabilidad_CP059.md` | Pendiente |
-| D-11 | CP-061 Supabase | Búsquedas en 2 s o menos también con Supabase | 6,8 s: 0,2 s por viaje a us-west-2, conexión nueva por petición (1,2 s) y cursores del servidor en 4 listas | Alta (RNF-01) | Cursores desactivados y catálogos en caché (6,8 → 2,7 s); con conexiones persistentes, p95 1,96 s (CP-062) | Mitigado; ver R-02 |
+| D-11 | CP-061 Supabase | Búsquedas en 2 s o menos también con Supabase | 6,8 s: 0,2 s por viaje a us-west-2, conexión nueva por petición (1,2 s) y cursores del servidor en 4 listas | Alta (RNF-01) | Cursores desactivados y catálogos en caché (6,8 → 2,7 s); con conexiones persistentes, p95 1,96 s (CP-062) | Resuelto (CP-064: 0,37 s en producción) |
+| D-13 | CP-065 producción | p95 de 2 s o menos con 10 usuarios simultáneos | p95 2,40 s: la CPU del plan gratuito de Render se satura en ~3 peticiones/s (cumple hasta 5 usuarios) | Media | Plan con más CPU para uso real; caché de fragmentos de plantilla | Recomendación (R-02) |
 | D-12 | Configuración de Supabase | Crear el proyecto `idearia` en São Paulo por la API | 403: la cuenta no pertenece a ninguna organización; solo tiene acceso a un proyecto | Baja | Se usó el proyecto existente (vacío, creado hoy) con el rol `idearia_app` y RLS | Resuelto |
 
 Las correcciones se verificaron con una nueva ejecución de las 102 pruebas (regresión) y del recorrido en navegador.
@@ -189,7 +207,7 @@ Las correcciones se verificaron con una nueva ejecución de las 102 pruebas (reg
 | ID | Recomendación | Basada en |
 |---|---|---|
 | R-01 | Para el informe, agregar una captura del *Table Editor* de Supabase con la fila de `registro.cp055@idearia.test` (CP-055 ya está verificado por SQL). | CP-055 |
-| R-02 | Desplegar el servidor de aplicación en la misma región que Supabase, o crear la base en sa-east-1 (São Paulo) desde una organización propia, y repetir CP-061. | D-11 |
+| R-02 | Para uso real con más de 5 usuarios simultáneos, contratar un plan de Render con más CPU o agregar caché de fragmentos al catálogo, y repetir CP-065. (La recomendación de ubicar app y base en la misma región ya se aplicó: CP-064.) | D-13 |
 | R-03 | En producción, usar un servidor WSGI con varios procesos (`waitress` o `gunicorn`) y `DB_CONN_MAX_AGE=60` para reutilizar conexiones. | D-09, D-11 |
 | R-04 | Realizar la prueba de usabilidad con 5 educadoras/es (RNF-08) siguiendo [`pruebas/protocolo_usabilidad_CP059.md`](pruebas/protocolo_usabilidad_CP059.md). | CP-059 |
 | R-05 | Con varios procesos, mover el bloqueo de login a una caché compartida (BD o Redis). | CP-038 |
