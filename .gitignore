@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------
+# Idearia - archivos que NO deben subirse a Git
+# ---------------------------------------------------------------
+
+# Entorno virtual de Python
+.venv/
+venv/
+env/
+
+# Variables de entorno y credenciales (NUNCA subir)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+logs/
+*.log
+
+# Archivos subidos por usuarios (planificaciones y acreditaciones).
+# Son datos sensibles: se guardan fuera de Git.
+media_protegida/
+
+# Editores y sistema operativo
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporales
+*.tmp
+*.bak
+~$*
