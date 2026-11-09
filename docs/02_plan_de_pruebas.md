@@ -3,7 +3,7 @@
 Evaluación Sumativa N.º 3 · Proyecto Integrado · INACAP
 Fecha de ejecución: **2026-11-09** · Responsable: Luis Chiguay
 
-Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen incluidos) a **60 casos**. Cada caso ejecutado registra el resultado esperado, el obtenido, su estado y su evidencia. Los resultados provienen de ejecuciones reales; los casos que aún no se han podido ejecutar aparecen como **No ejecutado**.
+Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen incluidos) a **62 casos**. Cada caso ejecutado registra el resultado esperado, el obtenido, su estado y su evidencia. Los resultados provienen de ejecuciones reales; los casos que aún no se han podido ejecutar aparecen como **No ejecutado**.
 
 **Matriz completa** (las 15 columnas: ID, funcionalidad, tipo, descripción, precondición, datos, esperado, obtenido, estado, evidencia, observaciones, posible defecto, recomendación, fecha y responsable):
 
@@ -30,7 +30,7 @@ Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen 
 |---|---|
 | Sistema operativo | Windows 11 Enterprise |
 | Python / Django | 3.12.10 / 5.2.19 |
-| Base de datos | SQLite 3 (desarrollo) y PostgreSQL 15.19 (contenedor Docker, mismo motor que Supabase) |
+| Base de datos | SQLite 3 (desarrollo), PostgreSQL 15.19 (contenedor Docker local) y **Supabase**: PostgreSQL 17, región us-west-2, Session pooler con SSL, rol propio `idearia_app` |
 | Navegador | Microsoft Edge (Chromium), modo sin interfaz |
 | Servidor (carga) | `runserver` de Django, un proceso, con datos de demostración (13 propuestas, 5 usuarios) |
 | Datos | Usuarios ficticios con dominio `.test`; archivos PDF/DOCX generados para las pruebas |
@@ -39,22 +39,23 @@ Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen 
 
 | Indicador | Valor |
 |---|---|
-| Casos del plan | **60** |
-| Ejecutados | **58** (96,7 %) |
-| OK | **58** (100 % de los ejecutados) |
-| NO OK | **0** al cierre (se detectaron y corrigieron 5 defectos durante el desarrollo, ver §5) |
-| No ejecutado | **2** (CP-055 Supabase, CP-059 usabilidad con personas) |
-| Pruebas automatizadas | **102 métodos**: 102/102 OK en SQLite y 102/102 OK en PostgreSQL |
+| Casos del plan | **62** |
+| Ejecutados | **61** (98,4 %) |
+| OK | **60** (98,4 % de los ejecutados) |
+| NO OK | **1**: CP-061, rendimiento con Supabase usando el servidor de desarrollo (ver D-11; mitigado en CP-062) |
+| No ejecutado | **1**: CP-059, usabilidad con 5 personas (protocolo listo) |
+| Pruebas automatizadas | **104 métodos**: OK en SQLite; 102/102 OK en PostgreSQL 15 local |
+| Integración con Supabase | Migraciones, datos, registro visible en Supabase (CP-055) y RLS activo en las 23 tablas |
 
-| Tipo | Casos | OK | No ejecutado |
-|---|---:|---:|---:|
-| Funcional | 25 | 25 | 0 |
-| Seguridad | 17 | 17 | 0 |
-| Caso borde | 11 | 11 | 0 |
-| Integración | 4 | 3 | 1 |
-| Rendimiento | 1 | 1 | 0 |
-| Usabilidad | 1 | 0 | 1 |
-| Sistema (E2E) | 1 | 1 | 0 |
+| Tipo | Casos | OK | NO OK | No ejecutado |
+|---|---:|---:|---:|---:|
+| Funcional | 25 | 25 | 0 | 0 |
+| Seguridad | 17 | 17 | 0 | 0 |
+| Caso borde | 11 | 11 | 0 | 0 |
+| Integración | 4 | 4 | 0 | 0 |
+| Rendimiento | 3 | 2 | 1 | 0 |
+| Usabilidad | 1 | 0 | 0 | 1 |
+| Sistema (E2E) | 1 | 1 | 0 | 0 |
 
 ### Prueba de rendimiento (CP-058, RNF-01: búsquedas en 2 s o menos)
 
@@ -65,7 +66,25 @@ Este plan amplía los 10 casos de la Evaluación 2 (CP-001 a CP-010, que siguen 
 | 25 usuarios x 20 búsquedas | 500 | 0,397 s | 0,393 s | 0,541 s | 0,632 s | 0 | 48,0 | OK |
 | 50 usuarios x 10 búsquedas | 500 | 0,778 s | 0,788 s | 1,113 s | 1,647 s | 0 | 41,5 | OK |
 
-Evidencia: `docs/evidencias/carga_*.md` (resumen) y `carga_*.csv` (cada petición).
+Las filas anteriores son con base de datos **local** (SQLite).
+
+### Rendimiento con Supabase (CP-061, CP-062)
+
+Idearia corriendo en un PC en Chile, conectada a Supabase en **us-west-2 (Oregón, EE. UU.)**. Cada consulta SQL tarda al menos **0,20 s** de ida y vuelta, y abrir una conexión tarda **1,22 s**.
+
+| Escenario | Consultas por búsqueda | Promedio | p95 | Máximo | Errores | RNF-01 |
+|---|---:|---:|---:|---:|---:|:-:|
+| runserver, antes de optimizar, 1 usuario | 11 | 6,769 s | 7,072 s | 7,083 s | 0 | NO OK |
+| runserver, antes de optimizar, 10 usuarios | 11 | 5,770 s | 6,113 s | 6,435 s | 0 | NO OK |
+| runserver, optimizado, 1 usuario | 7 | 2,684 s | 3,075 s | 3,121 s | 0 | NO OK |
+| runserver, optimizado, 10 usuarios | 7 | 2,319 s | 2,637 s | 2,671 s | 0 | NO OK |
+| Conexiones persistentes (`CONN_MAX_AGE=60`), optimizado | 7 | 1,541 s | 1,957 s | 2,148 s | 0 | **OK** |
+
+Optimizaciones aplicadas a partir de esta medición:
+1. `DISABLE_SERVER_SIDE_CURSORS` (recomendación de Django para *poolers*).
+2. Caché de los catálogos de filtros.
+
+Evidencia: `docs/evidencias/rendimiento_supabase.txt`, `docs/evidencias/carga_*.md` (resumen) y `carga_*.csv` (cada petición).
 
 ## 4. Casos y resultados
 
@@ -126,13 +145,15 @@ Vista compacta. El detalle de precondiciones, datos, evidencia y recomendaciones
 | CP-051 | El autor valora su propia propuesta | Caso borde | Mensaje de error; 0 valoraciones | **OK** |
 | CP-052 | Transición inválida | Caso borde | Sigue EN_REVISION; mensaje 'No se puede realizar esta acción…' | **OK** |
 | CP-053 | Parámetros manipulados en la URL | Caso borde | 200 OK | **OK** |
-| CP-054 | connection.vendor devuelve 'postgresql' | Integración | Motor: postgresql (PostgreSQL 15.19 en contenedor Docker local); 102/102 pruebas OK | **OK** |
-| CP-055 | Registro creado en Idearia visible en Supabase | Integración | — | **No ejecutado** |
+| CP-054 | connection.vendor devuelve 'postgresql' | Integración | Supabase: Motor postgresql, PostgreSQL 17, SSL activo, 0 migraciones pendientes. También PostgreSQL 15 local: 102/102 pruebas OK | **OK** |
+| CP-055 | Registro creado en Idearia visible en Supabase | Integración | Mensaje 'Registro realizado exitosamente'; la consulta SQL directa en Supabase devuelve la fila id 6 con rol EDUCADOR, RUT 21345678-4 y contraseña con hash pbkdf2_sha256 | **OK** |
 | CP-056 | Planificación: archivo almacenado y referencia correcta en BD | Integración | Ruta planificaciones/<uuid>.pdf existe; nombre_archivo, tipo 'pdf' y tamaño coinciden | **OK** |
 | CP-057 | Migraciones y restricciones en PostgreSQL | Integración | 16 tablas de Idearia; restricciones UNIQUE/CHECK/FK e índices presentes; 3 ámbitos, 8 núcleos | **OK** |
 | CP-058 | Carga de búsquedas concurrentes (10, 25 y 50 usuarios) | Rendimiento | Línea base 1 u: prom. 0,030 s · 10 u: prom. 0,143 s, p95 0,189 s · 25 u: prom. 0,397 s, p95 0,541 s · 50 u: prom. 0,778 s, p95 1,113 s, máx. 1,647 s · 0 errores (1.230 peticiones) | **OK** |
 | CP-059 | 5 usuarios nuevos buscan, filtran y abren un detalle sin ayuda | Usabilidad | — | **No ejecutado** |
 | CP-060 | Recorrido en navegador real por las pantallas de los 3 perfiles | Sistema (E2E) | 0 errores; ancho en móvil 390 px; 18 capturas | **OK** |
+| CP-061 | Búsquedas contra Supabase con el servidor de desarrollo | Rendimiento | Antes de optimizar: p95 7,07 s (1 u) y 6,11 s (10 u). Tras optimizar: p95 3,08 s (1 u) y 2,64 s (10 u). 0 errores | **NO OK** |
+| CP-062 | Búsquedas contra Supabase con conexiones persistentes (configuración de producción) | Rendimiento | 7 consultas por búsqueda; prom. 1,541 s, mediana 1,459 s, p95 1,957 s, máx. 2,148 s | **OK** |
 
 ## 5. Comparación esperado vs. obtenido: discrepancias encontradas
 
@@ -149,7 +170,9 @@ Durante la construcción y la ejecución de pruebas aparecieron estas diferencia
 | D-07 | `check --deploy` | Sin advertencias | W021: HSTS *preload* desactivado | Informativa | Configurable en `.env`; requiere un dominio definitivo | Aceptado |
 | D-08 | Diseño E2 vs. E3 | Matriz E2: el Colaborador no usa favoritos ni valoraciones; formatos .doc/.docx/.pdf | El Colaborador conserva sus funciones de Educador/a; .doc no se acepta | Informativa | Decisión documentada (01_implementacion §6 y §12) | Aceptado |
 | D-09 | CP-058 carga | Tiempo estable al aumentar usuarios | La latencia crece en forma lineal (p95 0,19 s → 1,11 s de 10 a 50 usuarios); techo de ~50 peticiones/s | Media (escala) | Ver recomendaciones R-02 y R-03 | Pendiente |
-| D-10 | CP-055 / CP-059 | Todos los casos ejecutados | 2 casos dependen de recursos externos | — | Instrucciones paso a paso (README, §6) | Pendiente |
+| D-10 | CP-059 | Todos los casos ejecutados | La usabilidad requiere 5 participantes reales | — | Protocolo y planilla en `pruebas/protocolo_usabilidad_CP059.md` | Pendiente |
+| D-11 | CP-061 Supabase | Búsquedas en 2 s o menos también con Supabase | 6,8 s: 0,2 s por viaje a us-west-2, conexión nueva por petición (1,2 s) y cursores del servidor en 4 listas | Alta (RNF-01) | Cursores desactivados y catálogos en caché (6,8 → 2,7 s); con conexiones persistentes, p95 1,96 s (CP-062) | Mitigado; ver R-02 |
+| D-12 | Configuración de Supabase | Crear el proyecto `idearia` en São Paulo por la API | 403: la cuenta no pertenece a ninguna organización; solo tiene acceso a un proyecto | Baja | Se usó el proyecto existente (vacío, creado hoy) con el rol `idearia_app` y RLS | Resuelto |
 
 Las correcciones se verificaron con una nueva ejecución de las 102 pruebas (regresión) y del recorrido en navegador.
 
@@ -158,15 +181,16 @@ Las correcciones se verificaron con una nueva ejecución de las 102 pruebas (reg
 - **Funcionalidad:** los 15 flujos que exige la evaluación funcionan de extremo a extremo con los tres perfiles: registro, login, búsqueda, filtros, detalle, favorito, valoración, comentario, solicitud de colaborador, propuesta, carga de planificación, envío a revisión, aprobación y publicación.
 - **Seguridad:** los controles se comprueban **en el servidor**, no solo en la interfaz. Las pruebas envían peticiones directas (URL escrita a mano, POST sin rol, POST sin CSRF, campos inyectados, archivos maliciosos) y todas son rechazadas. La base de datos aplica sus propias restricciones (UNIQUE, CHECK, índice parcial): aunque alguien se saltara la aplicación, no podría duplicar favoritos o valoraciones, ni registrar puntuaciones fuera de rango.
 - **Rendimiento:** con 50 usuarios simultáneos el p95 (1,11 s) sigue bajo el umbral de 2 s. Sin embargo, la latencia promedio crece casi en proporción a los usuarios (0,14 s → 0,40 s → 0,78 s) mientras el rendimiento se mantiene en ~41–52 peticiones/s. Esto indica que el límite es el **servidor de desarrollo** (un proceso), no las consultas: con un solo usuario la búsqueda tarda 0,030 s de promedio (línea base medida). Extrapolando, el p95 superaría los 2 s con unos 90 usuarios simultáneos en este entorno.
-- **Limitaciones de las pruebas:** las mediciones se hicieron en local. Con Supabase se agregará la latencia de red hacia el servidor de la base de datos, así que los tiempos deben medirse de nuevo en ese entorno (R-02). La protección contra descarga **disminuye** la distribución, pero no impide capturas de pantalla; es una limitación técnica reconocida desde la Evaluación 2.
+- **Rendimiento con Supabase:** la primera medición dio **NO OK** (6,8 s por búsqueda). El diagnóstico mostró que el tiempo no venía de las consultas (0,03 s con la base local), sino de la **red**: 0,2 s por viaje a EE. UU. y 1,2 s por abrir cada conexión. Además, los cursores del servidor multiplicaban los viajes. Con dos optimizaciones el tiempo bajó un 60 % (2,7 s). Con conexiones persistentes, como en producción, se cumple RNF-01 (p95 1,96 s), aunque con poco margen. La medida definitiva es ubicar el servidor de aplicación en la misma región que la base de datos, como plantea el diagrama de despliegue de la Evaluación 2, o crear la base en São Paulo (R-02).
+- **Limitaciones de las pruebas:** las pruebas automatizadas crean una base temporal, por lo que se ejecutan en SQLite o PostgreSQL local; el rol `idearia_app` no tiene permiso para crear bases en Supabase, por seguridad. La integración con Supabase se comprobó por separado (CP-054, CP-055, CP-061, CP-062). La protección contra descarga **disminuye** la distribución, pero no impide capturas de pantalla; es una limitación técnica reconocida desde la Evaluación 2.
 
 ## 7. Recomendaciones
 
 | ID | Recomendación | Basada en |
 |---|---|---|
-| R-01 | Ejecutar CP-055 en cuanto el proyecto de Supabase esté creado: registrar un usuario, ejecutar `manage.py verificar_bd --guardar` y adjuntar la captura del *Table Editor*. | D-10 |
-| R-02 | Repetir `scripts/prueba_carga.py` con `DB_ENGINE="supabase"` y comparar con esta línea base. | D-09 |
-| R-03 | En producción, usar un servidor WSGI con varios procesos (`waitress` en Windows o `gunicorn` en Linux) detrás de HTTPS y medir otra vez la carga. | D-09 |
+| R-01 | Para el informe, agregar una captura del *Table Editor* de Supabase con la fila de `registro.cp055@idearia.test` (CP-055 ya está verificado por SQL). | CP-055 |
+| R-02 | Desplegar el servidor de aplicación en la misma región que Supabase, o crear la base en sa-east-1 (São Paulo) desde una organización propia, y repetir CP-061. | D-11 |
+| R-03 | En producción, usar un servidor WSGI con varios procesos (`waitress` o `gunicorn`) y `DB_CONN_MAX_AGE=60` para reutilizar conexiones. | D-09, D-11 |
 | R-04 | Realizar la prueba de usabilidad con 5 educadoras/es (RNF-08) siguiendo [`pruebas/protocolo_usabilidad_CP059.md`](pruebas/protocolo_usabilidad_CP059.md). | CP-059 |
 | R-05 | Con varios procesos, mover el bloqueo de login a una caché compartida (BD o Redis). | CP-038 |
 | R-06 | Agregar la recuperación de contraseña por correo cuando haya un servidor SMTP. | Alcance |
@@ -176,11 +200,11 @@ Las correcciones se verificaron con una nueva ejecución de las 102 pruebas (reg
 ## 8. Cómo repetir las pruebas
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py test --verbosity 2
+$env:DB_ENGINE="sqlite"; .\.venv\Scripts\python.exe manage.py test --verbosity 2
 .\.venv\Scripts\python.exe manage.py runserver 8001
 .\.venv\Scripts\python.exe scripts\prueba_carga.py --usuarios 25 --peticiones 20
 ```
 
-La primera línea ejecuta las 102 pruebas que cubren CP-001 a CP-054 y CP-056. CP-057 (migraciones en PostgreSQL), CP-058 (carga) y CP-060 (navegador) se ejecutan con sus scripts. La segunda va en otra terminal, para la prueba de carga de la tercera línea.
+La primera línea fuerza SQLite solo para esa terminal y ejecuta las pruebas que cubren CP-001 a CP-054 y CP-056. CP-057 (migraciones en PostgreSQL), CP-058 (carga) y CP-060 (navegador) se ejecutan con sus scripts. La segunda va en otra terminal, para la prueba de carga de la tercera línea.
 
 Para registrar un caso pendiente, edita en la matriz Excel las columnas *Resultado obtenido*, *Estado*, *Evidencia* y *Fecha*. La hoja *Resumen* se recalcula sola.

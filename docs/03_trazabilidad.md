@@ -78,7 +78,7 @@
 
 | RNF | Requisito | Implementación | Verificación |
 |---|---|---|---|
-| RNF-01 | Búsquedas en 2 s o menos | Índices, subconsultas, paginación de 9 | CP-058 (p95 1,11 s con 50 usuarios) |
+| RNF-01 | Búsquedas en 2 s o menos | Índices, subconsultas, paginación de 9, caché de catálogos, sin cursores del servidor | CP-058 local (p95 1,11 s con 50 usuarios); Supabase: CP-061 NO OK con runserver, CP-062 OK con conexiones persistentes (p95 1,96 s) |
 | RNF-02 | Detalle en 2 s o menos | `select_related` y `prefetch_related` | Recorrido E2E (CP-060) |
 | RNF-03 | Acreditación visible solo para el dueño y el administrador | Vista `documento` | CP-041 |
 | RNF-04 | Acreditación PDF/JPG/PNG de 10 MB como máximo | `EXTENSIONES_ACREDITACION` | CP-030, CP-032 |

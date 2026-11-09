@@ -1,6 +1,7 @@
 """Formularios de búsqueda, propuesta pedagógica y revisión."""
 
 from django import forms
+from django.core.cache import cache
 from django.core.files.uploadedfile import UploadedFile
 
 from core.validators import EXTENSIONES_PLANIFICACION, validar_archivo
@@ -20,8 +21,30 @@ ORDENES = [
 ]
 
 
+def opciones_en_cache(modelo, etiqueta_vacia=None, segundos=600):
+    """
+    Lista (id, nombre) de un catálogo guardada 10 minutos en caché.
+    Los catálogos (ámbitos, núcleos, materiales, categorías) casi nunca cambian:
+    así no se consultan a la base de datos en cada búsqueda.
+    """
+    clave = f"catalogo:{modelo._meta.label_lower}"
+    opciones = cache.get(clave)
+    if opciones is None:
+        opciones = [(objeto.pk, str(objeto)) for objeto in modelo.objects.all()]
+        cache.set(clave, opciones, segundos)
+    return ([("", etiqueta_vacia)] if etiqueta_vacia else []) + opciones
+
+
 class FiltroCatalogoForm(forms.Form):
     """Filtros de búsqueda del Educador (RF-01 a RF-05). Todos son opcionales."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Las opciones se muestran desde la caché; la validación sigue usando la base de datos.
+        self.fields["ambito"].choices = opciones_en_cache(Ambito, "Todos los ámbitos")
+        self.fields["nucleo"].choices = opciones_en_cache(Nucleo, "Todos los núcleos")
+        self.fields["materiales"].choices = opciones_en_cache(Material)
+        self.fields["categoria"].choices = opciones_en_cache(Categoria, "Todas las categorías")
 
     q = forms.CharField(required=False, max_length=100, label="Buscar")
     nivel = forms.MultipleChoiceField(

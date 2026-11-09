@@ -48,6 +48,20 @@ Sí, en 3FN:
 **11. ¿Cómo se conectaron a Supabase?**
 Solo se cambió `DATABASES` en `settings.py`, que lee `DB_HOST`, `DB_USER`, etc. desde `.env` con `python-dotenv`, con `sslmode=require`. El `.env` está en `.gitignore`. Se verifica con `connection.vendor` → `postgresql`. → README
 
+**11b. ¿Con qué usuario se conecta Django a Supabase? ¿Qué es RLS?**
+Con un usuario propio, `idearia_app`, no con el administrador `postgres`. Solo puede trabajar en el esquema `public` (mínimo privilegio). Supabase expone una API REST automática sobre `public`; por eso:
+- las tablas de Idearia no dan permisos a los roles públicos (`anon`, `authenticated`);
+- se activó **Row Level Security** sin políticas, así nadie puede leerlas por esa API.
+
+Django no se ve afectado porque es el dueño de las tablas. → `core/migrations/0002_activar_rls_postgresql.py`
+
+**11c. ¿Cumple el tiempo de respuesta con Supabase?**
+La primera medición no cumplió: 6,8 s por búsqueda. El diagnóstico mostró que la causa era la red y no las consultas. La base está en EE. UU., cada consulta tarda 0,2 s en ir y volver, y abrir cada conexión 1,2 s.
+
+Se aplicaron dos correcciones: desactivar los cursores del servidor (recomendado con *poolers*) y guardar los catálogos en caché. Con eso bajó a 2,7 s. Con conexiones persistentes, como en producción, el p95 queda en 1,96 s.
+
+La solución definitiva es poner el servidor de la aplicación en la misma región que la base. → `docs/evidencias/rendimiento_supabase.txt`
+
 **12. ¿Por qué hay una migración de datos?**
 Para que `migrate` deje cargados los ámbitos y núcleos de las Bases Curriculares, las categorías y los materiales en cualquier base, incluida Supabase. → `planificaciones/migrations/0002_catalogos_iniciales.py`
 
@@ -103,10 +117,10 @@ Sí: una redirección abierta (*open redirect*), un favorito imposible de quitar
 
 ## Demostración sugerida (5–7 minutos)
 
-1. `connection.vendor` → `postgresql` y las tablas en el *Table Editor* de Supabase.
+1. `manage.py verificar_bd` → `postgresql`, SSL activo, y las tablas en el *Table Editor* de Supabase (con RLS activo).
 2. Registro de un usuario nuevo → la fila aparece en Supabase.
 3. Educadora: buscar, filtrar, quitar un filtro con un clic, ver el detalle, abrir el visor (sin descarga), marcar un favorito y valorar.
 4. Escribir `/administracion/` como Educadora → 403.
 5. Colaboradora: crear una propuesta, adjuntar un PDF y enviar a revisión. Intentar subir un `.exe` → rechazado.
 6. Administradora: solicitar corrección → la colaboradora corrige y reenvía → aprobar → publicar → aparece en el catálogo. Mostrar notificaciones y el registro de acciones.
-7. Terminal: `manage.py test` → 102 OK.
+7. Terminal: `$env:DB_ENGINE="sqlite"; manage.py test` → todas OK.

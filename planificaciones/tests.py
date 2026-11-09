@@ -82,6 +82,18 @@ class CatalogoTests(PruebaIdearia):
         respuesta = self.client.get(reverse("planificaciones:catalogo"), {"nivel": "UNIVERSIDAD", "nucleo": "abc", "page": "999"})
         self.assertEqual(respuesta.status_code, 200)
 
+    def test_filtros_usan_cache_de_catalogos(self):
+        """Optimización: los catálogos de los filtros se guardan en caché y se muestran igual."""
+        from django.core.cache import cache
+
+        respuesta = self.client.get(reverse("planificaciones:catalogo"))
+        self.assertContains(respuesta, "Todos los ámbitos")
+        self.assertContains(respuesta, "Comunicación Integral")
+        self.assertIsNotNone(cache.get("catalogo:planificaciones.ambito"))
+        nucleo = Nucleo.objects.get(nombre="Lenguajes Artísticos")
+        respuesta = self.client.get(reverse("planificaciones:catalogo"), {"nucleo": nucleo.pk})
+        self.assertContains(respuesta, f'<option value="{nucleo.pk}" selected>')
+
     def test_cp008_detalle_de_idea_publicada(self):
         """CP-008: el detalle muestra la información pedagógica completa."""
         respuesta = self.client.get(reverse("planificaciones:detalle", args=[self.naturaleza.pk]))

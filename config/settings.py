@@ -126,8 +126,13 @@ if DB_ENGINE in ("supabase", "postgresql", "postgres"):
             "HOST": os.getenv("DB_HOST"),
             "PORT": os.getenv("DB_PORT", "5432"),
             "OPTIONS": {"sslmode": os.getenv("DB_SSLMODE", "require")},
-            # 0 = abrir y cerrar la conexión en cada petición (recomendado con el pooler de Supabase)
+            # 0 = abrir y cerrar la conexión en cada petición (seguro con runserver).
+            # En producción (waitress/gunicorn) usar 60 para reutilizar conexiones.
             "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "0")),
+            "CONN_HEALTH_CHECKS": True,
+            # Con el pooler de Supabase, Django recomienda desactivar los cursores del
+            # servidor: cada consulta se resuelve en un solo viaje a la base de datos.
+            "DISABLE_SERVER_SIDE_CURSORS": True,
         }
     }
 elif DB_ENGINE == "sqlite":

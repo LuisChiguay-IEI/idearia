@@ -1,9 +1,9 @@
 # Ejecución de pruebas automatizadas - SQLite
-# Fecha: 2026-11-09 02:09:37  |  Python 3.12.10  |  Django 5.2.19
-# Comando: .\.venv\Scripts\python.exe manage.py test --verbosity 2
+# Fecha: 2026-11-09 02:57:07  |  Python 3.12.10  |  Django 5.2.19
+# Comando: $env:DB_ENGINE="sqlite"; .\.venv\Scripts\python.exe manage.py test --verbosity 2
 
 Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
-Found 102 test(s).
+Found 104 test(s).
 Operations to perform:
   Synchronize unmigrated apps: messages, staticfiles
   Apply all migrations: admin, auth, colaboradores, contenttypes, core, interacciones, notificaciones, planificaciones, sessions, usuarios
@@ -30,12 +30,13 @@ Running migrations:
   Applying admin.0002_logentry_remove_auto_add... OK
   Applying admin.0003_logentry_add_action_flag_choices... OK
   Applying colaboradores.0001_initial... OK
-  Applying core.0001_initial... OK
+  Applying sessions.0001_initial... OK
   Applying planificaciones.0001_initial... OK
-  Applying interacciones.0001_initial... OK
-  Applying notificaciones.0001_initial... OK
   Applying planificaciones.0002_catalogos_iniciales... OK
-  Applying sessions.0001_initial...test_cp015_aprobar_solicitud_habilita_colaborador (colaboradores.tests.RevisionSolicitudTests.test_cp015_aprobar_solicitud_habilita_colaborador)
+  Applying notificaciones.0001_initial... OK
+  Applying interacciones.0001_initial... OK
+  Applying core.0001_initial... OK
+  Applying core.0002_activar_rls_postgresql...test_cp015_aprobar_solicitud_habilita_colaborador (colaboradores.tests.RevisionSolicitudTests.test_cp015_aprobar_solicitud_habilita_colaborador)
 CP-015: al aprobar, el usuario pasa a rol Colaborador, se notifica y se audita. ... ok
 test_cp027c_educador_no_accede_a_revision_de_solicitudes (colaboradores.tests.RevisionSolicitudTests.test_cp027c_educador_no_accede_a_revision_de_solicitudes)
 CP-027: la revisión de solicitudes es exclusiva del Administrador. ... ok
@@ -69,6 +70,8 @@ test_menu_muestra_solo_opciones_del_rol (core.tests.InicioYPanelTests.test_menu_
 RF-02: el Educador/a no ve opciones de administración en el menú. ... ok
 test_catalogos_cargados_por_migracion (core.tests.IntegracionBaseDatosTests.test_catalogos_cargados_por_migracion) ... ok
 test_comando_cargar_demo (core.tests.IntegracionBaseDatosTests.test_comando_cargar_demo) ... ok
+test_comando_verificar_bd (core.tests.IntegracionBaseDatosTests.test_comando_verificar_bd)
+El comando de verificación informa el motor y no muestra credenciales. ... ok
 test_cp054_motor_de_base_de_datos (core.tests.IntegracionBaseDatosTests.test_cp054_motor_de_base_de_datos)
 CP-054: informa el motor usado por Django (sqlite en desarrollo, postgresql con Supabase). ... ok
 test_archivo_vacio (core.tests.ValidadorArchivosTests.test_archivo_vacio) ... ok
@@ -129,6 +132,8 @@ test_cp047_idea_inexistente_o_no_publicada (planificaciones.tests.CatalogoTests.
 CP-047: ideas inexistentes o no publicadas responden 404 a un Educador/a. ... ok
 test_cp053_parametros_manipulados_se_ignoran (planificaciones.tests.CatalogoTests.test_cp053_parametros_manipulados_se_ignoran)
 CP-053: valores inexistentes en la URL no provocan error 500. ... ok
+test_filtros_usan_cache_de_catalogos (planificaciones.tests.CatalogoTests.test_filtros_usan_cache_de_catalogos)
+Optimización: los catálogos de los filtros se guardan en caché y se muestran igual. ... ok
 test_cp016_guardar_borrador_incompleto (planificaciones.tests.PropuestaColaboradorTests.test_cp016_guardar_borrador_incompleto)
 CP-016: con solo el título se guarda como Borrador (RF-14). ... ok
 test_cp017_envio_a_revision_con_archivo (planificaciones.tests.PropuestaColaboradorTests.test_cp017_envio_a_revision_con_archivo)
@@ -220,7 +225,7 @@ test_registro_menor_de_edad (usuarios.tests.RegistroTests.test_registro_menor_de
 test_rut_valido_e_invalido (usuarios.tests.RutTests.test_rut_valido_e_invalido) ... ok
 
 ----------------------------------------------------------------------
-Ran 102 tests in 50.457s
+Ran 104 tests in 53.570s
 
 OK
 Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...

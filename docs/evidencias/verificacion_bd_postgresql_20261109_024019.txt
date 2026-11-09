@@ -1,0 +1,29 @@
+Verificación de base de datos · Idearia
+Fecha: 2026-11-09 02:40:17
+
+Motor (connection.vendor): postgresql
+Servidor: aws-1-us-west-2.pooler.supabase.com
+Base de datos: postgres
+Versión de PostgreSQL: 170011
+Conexión cifrada (SSL): sí
+Migraciones pendientes: 0
+
+Registros por tabla:
+  usuarios_usuario                       5
+  colaboradores_solicitudcolaborador     3
+  planificaciones_planificacion          13
+    · publicadas                         9
+  planificaciones_ambito                 3
+  planificaciones_nucleo                 8
+  interacciones_favorito                 3
+  interacciones_valoracion               18
+  interacciones_comentario               3
+  notificaciones_notificacion            0
+  core_registroaccion                    0
+
+Últimos usuarios registrados (para comparar con el Table Editor de Supabase):
+  2026-11-09 02:39  postulante@idearia.test            Educador/a de Párvulos
+  2026-11-09 02:39  educadora@idearia.test             Educador/a de Párvulos
+  2026-11-09 02:39  colaborador2@idearia.test          Profesional Colaborador/a
+  2026-11-09 02:39  colaboradora@idearia.test          Profesional Colaborador/a
+  2026-11-09 02:39  administradora@idearia.test        Administrador/a

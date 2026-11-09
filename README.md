@@ -177,6 +177,27 @@ Para generar la evidencia de la conexión (motor, SSL, tablas y últimos usuario
 
 > Los registros que creaste en SQLite **no se copian** a Supabase. Las migraciones crean las tablas vacías, salvo los catálogos.
 
+### Configuración usada en este proyecto (recomendada)
+
+En vez de conectar Django con el usuario administrador `postgres`, Idearia usa un **usuario de base de datos propio**, `idearia_app`. Ese usuario solo puede crear y usar tablas en el esquema `public` (principio de mínimo privilegio). Para crearlo, abre **SQL Editor** en Supabase y ejecuta:
+
+```sql
+CREATE ROLE idearia_app LOGIN PASSWORD 'una-contraseña-larga-y-aleatoria';
+GRANT CONNECT ON DATABASE postgres TO idearia_app;
+GRANT USAGE, CREATE ON SCHEMA public TO idearia_app;
+```
+
+En `.env` usa `DB_USER="idearia_app.ID_DEL_PROYECTO"` y esa contraseña. El host y el puerto son los mismos del Session pooler.
+
+Seguridad adicional:
+- Las tablas creadas por `idearia_app` no otorgan permisos a los roles `anon` y `authenticated` de la API REST pública de Supabase.
+- La migración `core/0002_activar_rls_postgresql` activa **Row Level Security** en todas las tablas. Nadie puede leerlas por la API de Supabase, y Django, como dueño de las tablas, no se ve afectado.
+
+Rendimiento:
+- Con el Session pooler, `settings.py` desactiva los cursores del lado del servidor (`DISABLE_SERVER_SIDE_CURSORS`).
+- En producción, define `DB_CONN_MAX_AGE="60"` para reutilizar conexiones.
+- Elige la región de Supabase más cercana al servidor de la aplicación (desde Chile: *South America, São Paulo*).
+
 ## Datos de demostración
 
 ```powershell
@@ -203,6 +224,12 @@ La contraseña de todos es la que definiste en `DEMO_PASSWORD` dentro de `.env`;
 ```powershell
 .\.venv\Scripts\python.exe manage.py test
 .\.venv\Scripts\python.exe manage.py test --verbosity 2
+```
+
+Si tu `.env` apunta a Supabase, ejecuta las pruebas con SQLite. Django necesita crear una base temporal y el usuario `idearia_app` no tiene ese permiso:
+
+```powershell
+$env:DB_ENGINE="sqlite"; .\.venv\Scripts\python.exe manage.py test
 ```
 
 La segunda forma muestra el detalle de cada caso. Las pruebas usan una base de datos temporal y una carpeta temporal para los archivos: no modifican tus datos.
@@ -274,6 +301,9 @@ Para producción se recomienda un servidor WSGI como `waitress` o `gunicorn` en 
 | Timeout o `could not translate host name` | Host mal copiado, sin internet o red que bloquea el puerto 5432. Revisa `DB_HOST` y prueba en otra red. |
 | `relation ... does not exist` | No ejecutaste `migrate` en la base actual. |
 | `Port is already in use` | Usa otro puerto: `runserver 8002`. |
+| `permission denied to create database` al ejecutar pruebas | `.env` apunta a Supabase. Ejecuta las pruebas con `$env:DB_ENGINE="sqlite"` (ver [Pruebas](#pruebas)). |
+| `Max client connections reached` (Supabase) | Usaste `DB_CONN_MAX_AGE` mayor que 0 con `runserver`, que abre una conexión por petición. Déjalo en `0` en desarrollo. |
+| Páginas lentas con Supabase | La base está en otra región (cada consulta es un viaje de red). Usa la región más cercana y `DB_CONN_MAX_AGE="60"` en producción. |
 | Ves `Motor: sqlite` en vez de `postgresql` | `DB_ENGINE` sigue en `"sqlite"` o `.env` no está en la carpeta de `manage.py`. |
 | Errores de *acceso denegado* al instalar paquetes | OneDrive está sincronizando `.venv`. Pausa la sincronización mientras instalas o ubica el proyecto fuera de OneDrive. |
 | Después de 5 intentos no puedo iniciar sesión | Bloqueo de seguridad temporal (15 minutos). Espera o reinicia el servidor en desarrollo. |

@@ -1,0 +1,17 @@
+# CP-055 路 Registro creado en Idearia -> visible en Supabase
+# Fecha: 2026-11-09 02:42:16 (hora de Chile)
+# Proyecto Supabase: nqgqelhkxsefkeacbauy (us-west-2) 路 PostgreSQL 17 路 conexi贸n por Session pooler con SSL
+# Usuario de BD de la aplicaci贸n: idearia_app (rol propio, due帽o de las tablas)
+
+## Pasos
+1. Idearia corriendo con DB_ENGINE=supabase (manage.py runserver 8001).
+2. Registro desde el formulario /registro/ en Microsoft Edge (capturas 19a y 19b).
+3. Consulta SQL de solo lectura DIRECTAMENTE en Supabase (Management API), sin pasar por Django.
+
+## Resultado
+URL tras registrar: http://localhost:8001/ideas/
+Mensaje: egistro realizado exitosamente! Bienvenido/a a Idearia.
+Fila en Supabase: [{"id": 6, "email": "registro.cp055@idearia.test", "first_name": "Javiera", "last_name": "Soto", "rut": "21345678-4", "rol": "EDUCADOR", "is_active": true, "hash_inicio": "pbkdf2_sha256$1000000", "date_joined": "2026-11-09 05:41:48.842235+00"}]
+
+Nota: date_joined se guarda en UTC (05:41 UTC = 02:41 hora de Chile).
+La contrase帽a se almacena como hash pbkdf2_sha256 (no en texto plano).

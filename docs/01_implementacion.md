@@ -123,7 +123,14 @@ Solo se adaptó la sección `DATABASES` de `config/settings.py` y la carga de `.
 - `DB_ENGINE="sqlite"`: archivo local `db.sqlite3`, para desarrollar sin internet.
 - `DB_ENGINE="supabase"`: `django.db.backends.postgresql` con `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` y `sslmode=require`.
 - Si falta algún dato, Django muestra un error claro (`ImproperlyConfigured`) en lugar de intentar conectarse.
-- `CONN_MAX_AGE=0` (configurable): con el *Session pooler* de Supabase es preferible no retener conexiones.
+- `CONN_MAX_AGE=0` en desarrollo (configurable con `DB_CONN_MAX_AGE`). En producción se usa `60` para reutilizar conexiones.
+- `DISABLE_SERVER_SIDE_CURSORS=True`: Django lo recomienda con *poolers*. Cada consulta se resuelve en un solo viaje a la base de datos.
+
+**Proyecto Supabase usado:** PostgreSQL 17, región us-west-2, Session pooler con SSL.
+
+- **Usuario propio `idearia_app`**, en lugar del administrador `postgres`: solo puede usar y crear tablas en `public` (mínimo privilegio) y es dueño de las 23 tablas.
+- **RLS activado** en todas las tablas por la migración `core/0002_activar_rls_postgresql` (solo en PostgreSQL). La API REST pública de Supabase no puede leer ni escribir los datos, porque `anon` y `authenticated` no tienen permisos y RLS no tiene políticas. Django no se ve afectado, porque el dueño de las tablas no está sujeto a RLS.
+- `manage.py verificar_bd --guardar` muestra el motor, SSL, migraciones pendientes y registros, y guarda la evidencia.
 
 Los pasos para configurar y verificar están en el README.
 
@@ -250,6 +257,7 @@ Se conserva la línea visual de los mockups: paleta pastel (azul, menta, lila, d
 | Archivos | Extensión + MIME + firma + tamaño + nombre aleatorio + sin URL pública | CP-030, CP-031, CP-032, CP-041 |
 | Open redirect | `redireccion_segura()` valida que el destino sea interno | Pruebas de `usuarios` y `notificaciones` |
 | Credenciales | Solo en `.env` (excluido de Git); `.env.example` sin secretos | Revisión de `.gitignore` |
+| Base de datos (Supabase) | Usuario propio `idearia_app` con mínimo privilegio, SSL obligatorio, RLS activo, sin permisos para la API REST pública | `integracion_supabase_cp055.txt`, consulta de permisos |
 | HTTPS | Con `DEBUG=False`: redirección HTTPS, cookies Secure, HSTS; `check --deploy` sin advertencias críticas | `check --deploy` |
 | Manejo de errores | Páginas 400/403/404/500 propias; `DEBUG=False` por defecto | CP-040 |
 | Registro (*logging*) | `RegistroAccion` en BD + `logs/idearia.log` (logins, 403, errores) | CP-025 |
@@ -258,7 +266,11 @@ Se conserva la línea visual de los mockups: paleta pastel (azul, menta, lila, d
 ## 11. Pruebas
 
 - **102 pruebas automatizadas** (`manage.py test`), con 102/102 OK en SQLite y en PostgreSQL 15.
-- **Prueba de carga** con 10, 25 y 50 usuarios concurrentes: p95 de 0,19 s, 0,54 s y 1,11 s; 0 errores.
+- **Prueba de carga local** con 10, 25 y 50 usuarios concurrentes: p95 de 0,19 s, 0,54 s y 1,11 s; 0 errores.
+- **Supabase:** migraciones aplicadas, registro desde la app visible en Supabase (CP-055) y rendimiento medido.
+  - La primera medición dio NO OK (6,8 s), por la latencia hacia us-west-2.
+  - Se optimizó con cursores desactivados y caché de catálogos: 2,7 s.
+  - Con conexiones persistentes: p95 1,96 s.
 - **Recorrido en navegador real** (Microsoft Edge): 15 pantallas sin errores de JavaScript ni de CSP; sin desplazamiento horizontal en 390 px.
 
 Detalle, discrepancias y recomendaciones en [02_plan_de_pruebas.md](02_plan_de_pruebas.md).
@@ -271,4 +283,6 @@ Detalle, discrepancias y recomendaciones en [02_plan_de_pruebas.md](02_plan_de_p
 | Almacenamiento local protegido | Más simple de explicar y probar que Supabase Storage. Para un hosting sin disco persistente, se recomienda migrar a un *bucket* privado (por ejemplo, `django-storages`). |
 | Recuperación de contraseña | No implementada (requiere un servidor de correo). Queda como recomendación. |
 | Bloqueo de login en memoria | Usa la caché local de Django. Con varios procesos en producción conviene una caché compartida (Redis o caché en BD). |
-| Servidor | `runserver` es solo para desarrollo. En producción se recomienda `waitress` o `gunicorn` detrás de HTTPS. |
+| Servidor | `runserver` es solo para desarrollo. En producción se recomienda `waitress` o `gunicorn` detrás de HTTPS, con `DB_CONN_MAX_AGE=60`. |
+| Región de Supabase | El proyecto está en us-west-2 (la cuenta no pudo crear un proyecto en São Paulo). Cada consulta desde Chile cuesta ~0,2 s. Para producción: servidor de aplicación en la misma región que la base, o base en sa-east-1. |
+| Caché de catálogos | Las listas de filtros se guardan 10 minutos en caché. Un catálogo nuevo agregado por el admin técnico aparece en los filtros en 10 minutos como máximo. |
