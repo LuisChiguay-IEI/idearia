@@ -1,0 +1,24 @@
+{% load idearia %}
+<div class="item-propuesta">
+  <span class="burbuja-icono {{ p|tema }}">{% icono p|icono_ambito %}</span>
+  <div class="texto">
+    <strong>{{ p.titulo }}</strong>
+    <small>{{ p.get_nivel_educativo_display|default:"Sin nivel" }} · {{ p.nucleo|default:"Sin núcleo" }} · Actualizada {{ p.fecha_actualizacion|date:"d-m-Y" }}</small>
+  </div>
+  <span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span>
+  <div class="grupo-botones">
+    {% if p.es_editable %}
+      <a class="boton boton-secundario boton-pequeno" href="{% url 'planificaciones:editar_propuesta' p.pk %}">{% icono "editar" %} {% if p.estado == "REQUIERE_CORRECCION" %}Corregir{% else %}Editar{% endif %}</a>
+    {% endif %}
+    <a class="boton boton-contorno boton-pequeno" href="{% url 'planificaciones:detalle' p.pk %}">{% icono "ojo" %} Ver</a>
+    {% if p.estado == "BORRADOR" and mostrar_eliminar %}
+      <form method="post" action="{% url 'planificaciones:eliminar_propuesta' p.pk %}" data-confirmar="¿Eliminar el borrador «{{ p.titulo }}»? Esta acción no se puede deshacer.">
+        {% csrf_token %}
+        <button class="boton boton-peligro boton-pequeno" type="submit" aria-label="Eliminar borrador">{% icono "basura" %}</button>
+      </form>
+    {% endif %}
+  </div>
+  {% if p.observacion_revision and p.estado != "PUBLICADA" and p.estado != "APROBADA" %}
+    <p class="observacion estado-{{ p.estado|lower }}"><strong>Observación del administrador:</strong> {{ p.observacion_revision }}</p>
+  {% endif %}
+</div>

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Búsqueda de ideas pedagógicas{% endblock %}
+
+{% block contenido %}
+<div class="diseno-catalogo">
+  <details class="panel-filtros" open>
+    <summary>{% icono "filtro" %} Filtros de búsqueda</summary>
+    <form id="form-filtros" method="get" action="{% url 'planificaciones:catalogo' %}">
+      <div class="grupo-filtro">
+        <div class="campo">
+          <label for="{{ form.q.id_for_label }}">Palabra clave</label>
+          {{ form.q }}
+        </div>
+      </div>
+
+      <div class="grupo-filtro">
+        <h3>{% icono "libro" %} Nivel educativo</h3>
+        <div class="lista-opciones">{{ form.nivel }}</div>
+      </div>
+
+      <div class="grupo-filtro">
+        <h3>{% icono "hoja" %} Ámbito / Núcleo</h3>
+        <div class="campo"><label class="visualmente-oculto" for="{{ form.ambito.id_for_label }}">Ámbito</label>{{ form.ambito }}</div>
+        <div class="campo"><label class="visualmente-oculto" for="{{ form.nucleo.id_for_label }}">Núcleo</label>{{ form.nucleo }}</div>
+      </div>
+
+      <div class="grupo-filtro">
+        <h3>{% icono "objetivo" %} Objetivo de aprendizaje</h3>
+        <div class="campo"><label class="visualmente-oculto" for="{{ form.oa.id_for_label }}">Objetivo de aprendizaje</label>{{ form.oa }}</div>
+      </div>
+
+      <div class="grupo-filtro">
+        <h3>{% icono "usuarios" %} Edad</h3>
+        <div class="lista-opciones">{{ form.edad }}</div>
+      </div>
+
+      <div class="grupo-filtro">
+        <h3>{% icono "reloj" %} Duración</h3>
+        <div class="lista-opciones">{{ form.duracion }}</div>
+      </div>
+
+      <div class="grupo-filtro">
+        <h3>{% icono "caja" %} Materiales disponibles</h3>
+        <p class="ayuda">{{ form.materiales.help_text }}</p>
+        <div class="lista-opciones desplazable">{{ form.materiales }}</div>
+      </div>
+
+      <div class="grupo-filtro">
+        <h3>{% icono "estrella" %} Categoría</h3>
+        <div class="campo"><label class="visualmente-oculto" for="{{ form.categoria.id_for_label }}">Categoría</label>{{ form.categoria }}</div>
+      </div>
+
+      <div class="grupo-botones">
+        <button type="submit" class="boton boton-primario boton-bloque">{% icono "buscar" %} Aplicar filtros</button>
+        <a class="boton boton-contorno boton-bloque" href="{% url 'planificaciones:catalogo' %}">{% icono "reintentar" %} Limpiar filtros</a>
+      </div>
+    </form>
+  </details>
+
+  <section>
+    <div class="encabezado-pagina">
+      <div>
+        <h1>Búsqueda de ideas pedagógicas</h1>
+        <p>Explora experiencias significativas, creativas y alineadas al currículo de Educación Parvularia, aportadas y revisadas por profesionales.</p>
+      </div>
+    </div>
+
+    <div class="barra-resultados">
+      <div class="chips">
+        {% if chips %}
+          <strong>Filtros activos:</strong>
+          {% for chip in chips %}
+            <a class="chip-filtro" href="{{ chip.url }}" aria-label="Quitar filtro {{ chip.etiqueta }}">{{ chip.etiqueta }} {% icono "cerrar" %}</a>
+          {% endfor %}
+        {% else %}
+          <span class="total">Sin filtros aplicados</span>
+        {% endif %}
+      </div>
+      <span class="total">{{ pagina.paginator.count }} resultado{{ pagina.paginator.count|pluralize }}</span>
+      <label class="visualmente-oculto" for="{{ form.orden.id_for_label }}">Ordenar por</label>
+      <select id="{{ form.orden.id_for_label }}" name="orden" form="form-filtros" data-enviar-al-cambiar>
+        {% for valor, etiqueta in form.fields.orden.choices %}
+          <option value="{{ valor }}"{% if form.orden.value == valor %} selected{% endif %}>{{ etiqueta }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if pagina.object_list %}
+      <div class="grid-ideas">
+        {% for p in pagina %}
+          {% if p.pk in favoritos %}{% include "planificaciones/_tarjeta_idea.html" with marcado=True %}{% else %}{% include "planificaciones/_tarjeta_idea.html" with marcado=False %}{% endif %}
+        {% endfor %}
+      </div>
+      {% include "core/_paginacion.html" %}
+    {% else %}
+      <div class="tarjeta vacio">
+        {% icono "buscar" %}
+        <h2>No encontramos ideas con esos criterios</h2>
+        <p>Prueba quitando algún filtro o usando otra palabra clave.</p>
+        <a class="boton boton-secundario" href="{% url 'planificaciones:catalogo' %}">Ver todas las ideas</a>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

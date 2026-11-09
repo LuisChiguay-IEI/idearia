@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static idearia %}
+{% block titulo %}Planificación: {{ p.titulo }}{% endblock %}
+
+{% block contenido %}
+<a class="volver" href="{% if user.es_administrador and not p.es_publica %}{% url 'planificaciones:admin_detalle' p.pk %}{% else %}{% url 'planificaciones:detalle' p.pk %}{% endif %}">{% icono "flecha-izq" %} Volver</a>
+
+<div class="visor-cabecera">
+  <div>
+    <p class="eyebrow">Planificación pedagógica adjunta</p>
+    <h1>{{ p.titulo }}</h1>
+    <p class="ayuda">Autor/a: {{ p.colaborador.get_full_name }} · Formato {{ p.tipo_archivo|upper }} · {{ p.tamano_archivo|filesizeformat }}</p>
+  </div>
+  <span class="etiqueta etiqueta-menta">{% icono "candado" %} Visualización protegida · sin descarga</span>
+</div>
+
+<div class="alerta alerta-info">
+  {% icono "escudo" %}
+  <p>Este documento se muestra solo dentro de Idearia para proteger el trabajo de su autor/a. Úsalo como inspiración y adáptalo a tu propio contexto educativo.</p>
+</div>
+<br>
+
+<div class="visor-marco">
+  <div class="marca-agua" aria-hidden="true">{% for i in "123456789012345678" %}<span>Idearia · {{ user.email }}</span>{% endfor %}</div>
+  {% if contenido_docx is not None %}
+    <article class="visor-docx">{{ contenido_docx|safe }}</article>
+  {% else %}
+    <div id="visor-pdf" data-url="{% url 'planificaciones:documento' p.pk %}" data-worker="{% static 'vendor/pdfjs/pdf.worker.min.js' %}"></div>
+    <p id="visor-estado" class="visor-estado" aria-live="polite">Cargando planificación...</p>
+  {% endif %}
+</div>
+<p class="aviso-impresion">La impresión de planificaciones no está disponible desde Idearia.</p>
+{% endblock %}
+
+{% block scripts %}
+  {% if contenido_docx is None %}
+    <script src="{% static 'vendor/pdfjs/pdf.min.js' %}"></script>
+    <script src="{% static 'js/visor.js' %}"></script>
+  {% endif %}
+{% endblock %}

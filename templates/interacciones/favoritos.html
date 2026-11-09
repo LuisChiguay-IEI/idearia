@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Mis favoritos{% endblock %}
+
+{% block contenido %}
+<div class="encabezado-pagina">
+  <div>
+    <h1>{% icono "corazon" %} Mis favoritos</h1>
+    <p>Las ideas que guardaste para revisar en tus próximas planificaciones.</p>
+  </div>
+  <a class="boton boton-secundario" href="{% url 'planificaciones:catalogo' %}">{% icono "buscar" %} Buscar más ideas</a>
+</div>
+
+{% if pagina.object_list %}
+  <div class="grid-ideas">
+    {% for favorito in pagina %}
+      {% with p=favorito.planificacion %}
+        {% if p.es_publica %}
+          {% include "planificaciones/_tarjeta_idea.html" with marcado=True %}
+        {% else %}
+          <article class="tarjeta">
+            <h3>{{ p.titulo }}</h3>
+            <p class="ayuda">Esta idea ya no está disponible en el catálogo.</p>
+            <form method="post" action="{% url 'interacciones:favorito' p.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="quitar">
+              <button class="boton boton-peligro boton-pequeno" type="submit">{% icono "basura" %} Quitar de favoritos</button>
+            </form>
+          </article>
+        {% endif %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+  {% include "core/_paginacion.html" %}
+{% else %}
+  <div class="tarjeta vacio">
+    {% icono "corazon" %}
+    <h2>Aún no tienes favoritos</h2>
+    <p>Guarda ideas desde el catálogo con el botón de corazón.</p>
+    <a class="boton boton-primario" href="{% url 'planificaciones:catalogo' %}">Explorar ideas</a>
+  </div>
+{% endif %}
+{% endblock %}

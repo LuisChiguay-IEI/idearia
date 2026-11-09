@@ -1,0 +1,42 @@
+{% extends "base_panel.html" %}
+{% load idearia %}
+{% block titulo %}Estado de mis propuestas{% endblock %}
+
+{% block panel %}
+<div class="encabezado-pagina">
+  <div>
+    <p class="eyebrow">Profesional Colaborador/a</p>
+    <h1>Estado de mis propuestas</h1>
+    <p>Revisa en qué etapa está cada propuesta y las observaciones del administrador.</p>
+  </div>
+  <a class="boton boton-primario" href="{% url 'planificaciones:crear_propuesta' %}">{% icono "mas" %} Nueva planificación</a>
+</div>
+
+<nav class="pestanas" aria-label="Filtrar por estado">
+  <a class="{% if not estado_actual %}activo{% endif %}" href="{% url 'planificaciones:mis_propuestas' %}">Todas <span class="contador">{{ total }}</span></a>
+  {% for valor, etiqueta, cantidad in pestanas %}
+    <a class="{% if estado_actual == valor %}activo{% endif %}" href="?estado={{ valor }}">{{ etiqueta }} <span class="contador">{{ cantidad }}</span></a>
+  {% endfor %}
+</nav>
+
+{% if propuestas %}
+  <div class="lista-propuestas">
+    {% for p in propuestas %}{% include "planificaciones/colaborador/_item_propuesta.html" with mostrar_eliminar=True %}{% endfor %}
+  </div>
+{% else %}
+  <div class="tarjeta vacio">{% icono "lista" %}<h2>No hay propuestas en este estado</h2></div>
+{% endif %}
+
+<section class="tarjeta">
+  <h3>¿Qué significa cada estado?</h3>
+  <dl class="datos-definicion">
+    <dt><span class="estado estado-borrador">Borrador</span></dt><dd>La estás preparando. Solo tú la ves.</dd>
+    <dt><span class="estado estado-en_revision">En revisión</span></dt><dd>Un administrador la está evaluando. No se puede editar.</dd>
+    <dt><span class="estado estado-requiere_correccion">Requiere corrección</span></dt><dd>Debes ajustarla según la observación y reenviarla.</dd>
+    <dt><span class="estado estado-aprobada">Aprobada</span></dt><dd>Cumple los criterios; será publicada.</dd>
+    <dt><span class="estado estado-publicada">Publicada</span></dt><dd>Visible en el catálogo para los educadores.</dd>
+    <dt><span class="estado estado-rechazada">Rechazada</span></dt><dd>No será publicada. Revisa el motivo indicado.</dd>
+    <dt><span class="estado estado-retirada">Retirada</span></dt><dd>Fue quitada del catálogo por un administrador.</dd>
+  </dl>
+</section>
+{% endblock %}

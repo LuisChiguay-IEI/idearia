@@ -1,0 +1,92 @@
+{% extends "base_panel.html" %}
+{% load idearia %}
+{% block titulo %}{% if propuesta.pk %}Editar propuesta{% else %}Nueva planificación{% endif %}{% endblock %}
+
+{% block panel %}
+<div class="diseno-formulario-propuesta">
+  <section class="tarjeta">
+    <div class="encabezado-formulario">
+      <span class="burbuja-mas">{% if propuesta.pk %}{% icono "editar" %}{% else %}{% icono "mas" %}{% endif %}</span>
+      <div>
+        <h1>{% if propuesta.pk %}Editar planificación{% else %}Crear nueva planificación{% endif %}</h1>
+        <p class="ayuda">Comparte una experiencia o estrategia pedagógica para Educación Parvularia que ya hayas elaborado. Los campos con <span class="obligatorio">*</span> son obligatorios para enviar a revisión.</p>
+      </div>
+    </div>
+
+    {% if propuesta.estado == "REQUIERE_CORRECCION" and propuesta.observacion_revision %}
+      <div class="alerta alerta-warning">{% icono "alerta" %}<p><strong>Correcciones solicitadas:</strong> {{ propuesta.observacion_revision }}</p></div>
+      <br>
+    {% endif %}
+
+    {% include "core/_errores_formulario.html" %}
+
+    <form method="post" enctype="multipart/form-data" class="formulario" novalidate>
+      {% csrf_token %}
+      {% include "core/_campo.html" with campo=form.titulo %}
+
+      <div class="fila-campos">
+        {% include "core/_campo.html" with campo=form.nivel_educativo obligatorio=True %}
+        {% include "core/_campo.html" with campo=form.duracion_minutos obligatorio=True %}
+      </div>
+      <div class="fila-campos">
+        {% include "core/_campo.html" with campo=form.edad_recomendada obligatorio=True %}
+        {% include "core/_campo.html" with campo=form.nucleo obligatorio=True %}
+      </div>
+
+      {% include "core/_campo.html" with campo=form.objetivo_aprendizaje obligatorio=True %}
+      {% include "core/_campo.html" with campo=form.descripcion obligatorio=True %}
+      {% include "core/_campo.html" with campo=form.categorias obligatorio=True opciones="dos-columnas" %}
+      {% include "core/_campo.html" with campo=form.materiales opciones="dos-columnas" %}
+
+      <div class="campo{% if form.archivo.errors %} campo-con-error{% endif %}">
+        <label for="{{ form.archivo.id_for_label }}" class="etiqueta-con-icono">{% icono "archivo" %} {{ form.archivo.label }} <span class="obligatorio">*</span></label>
+        <p class="ayuda">Adjunta la planificación que elaboraste previamente. Idearia no crea planificaciones: las comparte.</p>
+        <div class="zona-archivo">
+          {% icono "subir" "icono-grande" %}
+          <div class="detalle">
+            <strong>Selecciona un archivo</strong><br>
+            Formatos aceptados: .docx y .pdf · Tamaño máximo: 10 MB.
+            <br><span id="aviso-archivo">{% if propuesta.archivo %}Si seleccionas otro archivo, reemplazará al actual.{% else %}Ningún archivo seleccionado{% endif %}</span>
+          </div>
+          <input type="file" name="archivo" id="{{ form.archivo.id_for_label }}" accept=".pdf,.docx" data-max-mb="10" data-aviso="aviso-archivo">
+        </div>
+        {% if propuesta.archivo %}
+          <p class="archivo-actual">{% icono "check" %} Archivo actual: {{ propuesta.nombre_archivo }} ({{ propuesta.tamano_archivo|filesizeformat }})</p>
+        {% endif %}
+        {% for error in form.archivo.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="grupo-botones derecha">
+        <button type="submit" name="accion" value="guardar" class="boton boton-menta">{% icono "guardar" %} Guardar borrador</button>
+        <button type="submit" name="accion" value="enviar" class="boton boton-primario">{% icono "enviar" %} {% if propuesta.estado == "REQUIERE_CORRECCION" %}Reenviar a revisión{% else %}Enviar a revisión{% endif %}</button>
+      </div>
+    </form>
+  </section>
+
+  <aside>
+    <section class="tarjeta">
+      <div class="encabezado-pagina">
+        <h2>Mis planificaciones</h2>
+        <a href="{% url 'planificaciones:mis_propuestas' %}">Ver todas</a>
+      </div>
+      {% for p in recientes %}
+        <div class="item-revision">
+          <span class="burbuja-icono {{ p|tema }}">{% icono p|icono_ambito %}</span>
+          <span class="texto"><strong>{{ p.titulo|truncatechars:48 }}</strong><small>{{ p.get_nivel_educativo_display|default:"Sin nivel" }}</small></span>
+          <span class="lado"><span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span></span>
+        </div>
+      {% empty %}
+        <p class="ayuda">Aquí aparecerán tus propuestas.</p>
+      {% endfor %}
+    </section>
+    <section class="tarjeta">
+      <h3>{% icono "bombilla" %} Recomendaciones</h3>
+      <ul class="ayuda">
+        <li>Guarda como borrador si aún te falta información.</li>
+        <li>Indica un objetivo de aprendizaje claro y alineado a las Bases Curriculares.</li>
+        <li>Revisa que tu documento no incluya datos personales de niños o niñas.</li>
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}

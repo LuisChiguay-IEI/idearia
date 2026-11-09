@@ -1,0 +1,58 @@
+{% extends "base_panel.html" %}
+{% load idearia %}
+{% block titulo %}Panel del colaborador{% endblock %}
+
+{% block panel %}
+<div class="encabezado-pagina">
+  <div>
+    <p class="eyebrow">Profesional Colaborador/a</p>
+    <h1>Hola, {{ user.first_name }}</h1>
+    <p>Comparte planificaciones que ya elaboraste para inspirar a otros educadores y educadoras.</p>
+  </div>
+  <a class="boton boton-primario" href="{% url 'planificaciones:crear_propuesta' %}">{% icono "mas" %} Nueva planificación</a>
+</div>
+
+{% if por_corregir %}
+  <div class="alerta alerta-warning">
+    {% icono "alerta" %}
+    <p>Tienes {{ por_corregir|length }} propuesta{{ por_corregir|length|pluralize }} con correcciones solicitadas por el administrador.
+      <a href="{% url 'planificaciones:mis_propuestas' %}?estado=REQUIERE_CORRECCION">Revisar ahora</a></p>
+  </div>
+  <br>
+{% endif %}
+
+<div class="indicadores">
+  {% for valor, etiqueta, total in conteos %}
+    {% if valor == "BORRADOR" or valor == "EN_REVISION" or valor == "REQUIERE_CORRECCION" or valor == "PUBLICADA" %}
+      <a class="indicador" href="{% url 'planificaciones:mis_propuestas' %}?estado={{ valor }}">
+        <span class="burbuja-icono estado-{{ valor|lower }}">{% icono "archivo" %}</span>
+        <div><strong>{{ total }}</strong><span>{{ etiqueta }}</span></div>
+      </a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<section class="tarjeta">
+  <div class="encabezado-pagina">
+    <h2>Mis planificaciones recientes</h2>
+    <a href="{% url 'planificaciones:mis_propuestas' %}">Ver todas ({{ total }}) {% icono "flecha-der" %}</a>
+  </div>
+  {% if recientes %}
+    <div class="lista-propuestas">
+      {% for p in recientes %}{% include "planificaciones/colaborador/_item_propuesta.html" %}{% endfor %}
+    </div>
+  {% else %}
+    <div class="vacio">
+      {% icono "brote" %}
+      <h3>Aún no has creado propuestas</h3>
+      <p>Adjunta una planificación que ya hayas elaborado (Word o PDF) y complétala con sus datos pedagógicos.</p>
+      <a class="boton boton-primario" href="{% url 'planificaciones:crear_propuesta' %}">Crear mi primera propuesta</a>
+    </div>
+  {% endif %}
+</section>
+
+<section class="tarjeta">
+  <h2 class="seccion-titulo"><span class="burbuja-icono tema-0">{% icono "usuarios" %}</span> Tus ideas generan impacto</h2>
+  <p>Al compartir tus planificaciones, inspiras a otros educadores y contribuyes al intercambio de experiencias en la comunidad Idearia. Cada propuesta es revisada por un administrador antes de publicarse.</p>
+</section>
+{% endblock %}

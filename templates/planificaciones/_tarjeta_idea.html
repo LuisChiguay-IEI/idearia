@@ -1,0 +1,35 @@
+{% load idearia %}
+{# Tarjeta de idea reutilizable. Variables: p (Planificacion), marcado (bool) #}
+<article class="tarjeta-idea">
+  <div class="portada {{ p|tema }}">
+    {% icono p|icono_ambito %}
+    {% if p.nivel_educativo %}<span class="etiqueta nivel">{{ p.get_nivel_educativo_display }}</span>{% endif %}
+    {% if user.puede_interactuar %}
+      <form class="boton-favorito" method="post" action="{% url 'interacciones:favorito' p.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="volver" value="{{ request.get_full_path }}">
+        <input type="hidden" name="accion" value="{% if marcado %}quitar{% else %}agregar{% endif %}">
+        <button type="submit" class="boton-favorito-icono{% if marcado %} marcado{% endif %}" aria-label="{% if marcado %}Quitar de favoritos{% else %}Agregar a favoritos{% endif %}" title="{% if marcado %}Quitar de favoritos{% else %}Agregar a favoritos{% endif %}">{% icono "corazon" %}</button>
+      </form>
+    {% endif %}
+  </div>
+  <div class="cuerpo">
+    <h3><a href="{% url 'planificaciones:detalle' p.pk %}">{{ p.titulo }}</a></h3>
+    <p class="resumen">{{ p.descripcion }}</p>
+    <div class="lista-etiquetas">
+      {% for c in p.categorias.all|slice:":2" %}<span class="etiqueta {% cycle 'etiqueta-menta' 'etiqueta-lila' %}">{{ c.nombre }}</span>{% endfor %}
+    </div>
+    <div class="datos">
+      {% if p.edad_recomendada %}<span>{% icono "usuarios" %} {{ p.get_edad_recomendada_display }}</span>{% endif %}
+      {% if p.duracion_minutos %}<span>{% icono "reloj" %} {{ p.duracion_minutos }} min</span>{% endif %}
+      {% if p.total_valoraciones %}<span>{% icono "estrella" "icono-relleno" %} {{ p.promedio|floatformat:1 }} ({{ p.total_valoraciones }})</span>{% endif %}
+    </div>
+    <div class="pie-tarjeta">
+      <span class="autor">
+        <span class="avatar avatar-pequeno">{{ p.colaborador.iniciales }}</span>
+        <span><strong>{{ p.colaborador.get_full_name }}</strong><small>Profesional colaborador/a</small></span>
+      </span>
+      <a class="boton boton-contorno boton-pequeno" href="{% url 'planificaciones:detalle' p.pk %}">Ver detalle {% icono "flecha-der" %}</a>
+    </div>
+  </div>
+</article>

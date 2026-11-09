@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}{{ p.titulo }}{% endblock %}
+
+{% block contenido %}
+<a class="volver" href="{% url 'planificaciones:catalogo' %}">{% icono "flecha-izq" %} Volver a ideas pedagógicas</a>
+
+{% if not p.es_publica %}
+  <div class="alerta alerta-warning">{% icono "alerta" %}<p>Vista previa: esta propuesta está en estado <strong>{{ p.get_estado_display }}</strong> y no es visible para los educadores.</p></div>
+{% endif %}
+
+<div class="detalle-cabecera">
+  <div class="detalle-portada {{ p|tema }}">
+    {% icono p|icono_ambito %}
+    <div class="categorias-portada lista-etiquetas">
+      {% for c in p.categorias.all %}<span class="etiqueta">{{ c.nombre }}</span>{% endfor %}
+    </div>
+  </div>
+
+  <div class="detalle-info">
+    <div class="acciones-superiores">
+      {% if user.puede_interactuar and p.es_publica %}
+        <form method="post" action="{% url 'interacciones:favorito' p.pk %}">
+          {% csrf_token %}
+          {% if es_favorito %}
+            <input type="hidden" name="accion" value="quitar">
+            <button class="boton boton-peligro" type="submit">{% icono "corazon" "icono-relleno" %} Quitar de favoritos</button>
+          {% else %}
+            <input type="hidden" name="accion" value="agregar">
+            <button class="boton boton-contorno" type="submit">{% icono "corazon" %} Guardar en favoritos</button>
+          {% endif %}
+        </form>
+      {% endif %}
+      {% if user.es_administrador %}
+        <a class="boton boton-secundario" href="{% url 'planificaciones:admin_detalle' p.pk %}">{% icono "lista" %} Gestionar</a>
+      {% endif %}
+    </div>
+
+    <h1>{{ p.titulo }}</h1>
+    <div class="autor">
+      <span class="avatar">{{ p.colaborador.iniciales }}</span>
+      <span>
+        <strong>Por {{ p.colaborador.get_full_name }}</strong>
+        <small>{% icono "verificado" %} Profesional colaborador/a verificado/a{% if p.fecha_publicacion %} · Publicado el {{ p.fecha_publicacion|date:"j \d\e F \d\e Y" }}{% endif %}</small>
+      </span>
+    </div>
+    <div id="valoracion" class="valoracion-resumen">
+      {% estrellas resumen.promedio %} {{ resumen.promedio|default:0|floatformat:1 }}
+      <small>({{ resumen.total }} valoracion{{ resumen.total|pluralize:"es" }})</small>
+    </div>
+
+    <div class="ficha-datos">
+      <div>{% icono "libro" %}<small>Nivel educativo</small><strong>{{ p.get_nivel_educativo_display|default:"—" }}</strong></div>
+      <div>{% icono "usuarios" %}<small>Edad recomendada</small><strong>{{ p.get_edad_recomendada_display|default:"—" }}</strong></div>
+      <div>{% icono "reloj" %}<small>Duración</small><strong>{% if p.duracion_minutos %}{{ p.duracion_minutos }} minutos{% else %}—{% endif %}</strong></div>
+      <div>{% icono "hoja" %}<small>Ámbito / Núcleo</small><strong>{{ p.ambito|default:"—" }}</strong><small>{{ p.nucleo|default:"" }}</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="detalle-cuerpo">
+  <div>
+    <section class="tarjeta">
+      <h2 class="seccion-titulo"><span class="burbuja-icono tema-1">{% icono "objetivo" %}</span> Objetivo de aprendizaje</h2>
+      <p>{{ p.objetivo_aprendizaje|linebreaksbr|default:"No informado." }}</p>
+    </section>
+
+    <section class="tarjeta">
+      <h2 class="seccion-titulo"><span class="burbuja-icono tema-2">{% icono "archivo" %}</span> Descripción de la experiencia</h2>
+      <p>{{ p.descripcion|linebreaksbr|default:"No informada." }}</p>
+    </section>
+
+    <section class="tarjeta">
+      <h2 class="seccion-titulo"><span class="burbuja-icono tema-3">{% icono "caja" %}</span> Materiales</h2>
+      {% with materiales=p.materiales.all %}
+        {% if materiales %}
+          <div class="materiales-grid">{% for m in materiales %}<div class="material">{% icono "caja" %} {{ m.nombre }}</div>{% endfor %}</div>
+        {% else %}
+          <p>Esta experiencia no requiere materiales específicos.</p>
+        {% endif %}
+      {% endwith %}
+    </section>
+
+    <section class="tarjeta" id="comentarios">
+      <h2 class="seccion-titulo"><span class="burbuja-icono tema-0">{% icono "comentario" %}</span> Comentarios ({{ comentarios|length }})</h2>
+
+      {% if user.puede_interactuar and p.es_publica %}
+        <form method="post" action="{% url 'interacciones:comentar' p.pk %}" class="formulario">
+          {% csrf_token %}
+          {% include "core/_campo.html" with campo=form_comentario.contenido %}
+          <div class="grupo-botones derecha"><button class="boton boton-primario" type="submit">{% icono "enviar" %} Publicar comentario</button></div>
+        </form>
+        <hr>
+      {% endif %}
+
+      {% for c in comentarios %}
+        <div class="comentario{% if c.estado == 'OCULTO' %} oculto{% endif %}">
+          <span class="avatar avatar-pequeno">{{ c.usuario.iniciales }}</span>
+          <div class="contenido">
+            <div class="meta">
+              <strong>{{ c.usuario.get_full_name }}</strong>
+              <span>{{ c.fecha_comentario|date:"d-m-Y H:i" }}</span>
+              {% if c.estado == "OCULTO" %}<span class="etiqueta etiqueta-durazno">Oculto por moderación</span>{% endif %}
+              {% if user.es_administrador %}
+                <form method="post" action="{% url 'interacciones:moderar_comentario' c.pk %}">
+                  {% csrf_token %}
+                  <button class="boton boton-texto boton-pequeno" type="submit">{% if c.estado == "OCULTO" %}Mostrar{% else %}Ocultar{% endif %}</button>
+                </form>
+              {% endif %}
+            </div>
+            <p>{{ c.contenido }}</p>
+          </div>
+        </div>
+      {% empty %}
+        <p class="ayuda">Aún no hay comentarios. ¡Sé el primero en compartir tu experiencia!</p>
+      {% endfor %}
+    </section>
+  </div>
+
+  <div>
+    <section class="tarjeta tarjeta-planificacion">
+      <h2 class="seccion-titulo"><span class="burbuja-icono tema-2">{% icono "archivo" %}</span> Planificación pedagógica adjunta</h2>
+      <p>La autora o el autor compartió su planificación completa para que puedas consultarla como inspiración dentro de Idearia.</p>
+      {% if p.archivo %}
+        <div class="vista-previa">
+          <span class="tipo-doc {{ p.tipo_archivo }}">{{ p.tipo_archivo|upper }}</span>
+          <ul>
+            <li><strong>{{ p.titulo|truncatechars:40 }}</strong></li>
+            <li>Formato: {{ p.tipo_archivo|upper }}</li>
+            <li>Tamaño: {{ p.tamano_archivo|filesizeformat }}</li>
+            <li>{% icono "candado" %} Solo lectura, sin descarga</li>
+          </ul>
+        </div>
+        <a class="boton boton-primario boton-bloque" href="{% url 'planificaciones:visor' p.pk %}">{% icono "ojo" %} Ver planificación</a>
+      {% else %}
+        <p class="ayuda">Esta propuesta aún no tiene una planificación adjunta.</p>
+      {% endif %}
+    </section>
+
+    {% if user.puede_interactuar and p.es_publica and not es_autor %}
+      <section class="tarjeta">
+        <h2 class="seccion-titulo"><span class="burbuja-icono tema-amarillo">{% icono "estrella" %}</span> Valora esta idea</h2>
+        <form method="post" action="{% url 'interacciones:valorar' p.pk %}" class="formulario">
+          {% csrf_token %}
+          <fieldset class="selector-estrellas" aria-label="Valoración de 1 a 5 estrellas">
+            {% for valor in "54321" %}
+              <input type="radio" id="estrella-{{ valor }}" name="puntuacion" value="{{ valor }}"{% if mi_valoracion and mi_valoracion.puntuacion|stringformat:"i" == valor %} checked{% endif %}>
+              <label for="estrella-{{ valor }}" title="{{ valor }} estrella(s)">{% icono "estrella" %}<span class="visualmente-oculto">{{ valor }} estrellas</span></label>
+            {% endfor %}
+          </fieldset>
+          {% if mi_valoracion %}<p class="ayuda">Tu valoración actual: {{ mi_valoracion.puntuacion }} de 5. Puedes cambiarla.</p>{% endif %}
+          <button class="boton boton-secundario" type="submit">{% if mi_valoracion %}Actualizar valoración{% else %}Enviar valoración{% endif %}</button>
+        </form>
+      </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
