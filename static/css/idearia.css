@@ -116,6 +116,8 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1.25rem 0; }
 .menu-principal a:hover { background: var(--primario-suave); color: var(--primario); }
 .menu-principal a.activo { color: var(--primario); border-bottom-color: var(--primario); border-radius: 10px 10px 0 0; }
 
+.acciones-acceso { margin-left: auto; }
+
 .campana { position: relative; color: var(--texto-suave); padding: .4rem; border-radius: 10px; }
 .campana .icono { width: 1.4rem; height: 1.4rem; }
 .campana:hover { background: var(--primario-suave); color: var(--primario); }
@@ -300,6 +302,7 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1.25rem 0; }
 .tabla th { background: var(--superficie-suave); color: var(--texto-suave); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; }
 .tabla tr:last-child td { border-bottom: 0; }
 .tabla .acciones { text-align: right; white-space: nowrap; }
+.tabla .nowrap { white-space: nowrap; }
 
 /* Pestañas */
 .pestanas { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
@@ -328,7 +331,7 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1.25rem 0; }
 .valoracion-resumen small { font-weight: 600; color: var(--texto-suave); }
 
 /* Selector de estrellas (sin JavaScript: radios en orden inverso) */
-.selector-estrellas { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: .15rem; }
+.selector-estrellas { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: .15rem; border: 0; padding: 0; margin: 0; }
 .selector-estrellas input { position: absolute; opacity: 0; pointer-events: none; }
 .selector-estrellas label { cursor: pointer; color: #d7deea; }
 .selector-estrellas label .icono { width: 1.8rem; height: 1.8rem; }
@@ -498,6 +501,9 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1.25rem 0; }
 .encabezado-formulario .burbuja-mas { width: 3.6rem; height: 3.6rem; border-radius: 50%; background: var(--primario-suave); color: var(--primario); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .encabezado-formulario .burbuja-mas .icono { width: 1.8rem; height: 1.8rem; }
 .etiqueta-con-icono { display: flex; align-items: center; gap: .5rem; }
+.lista-lateral { display: grid; gap: .5rem; }
+.lista-lateral .item-revision strong { font-size: .88rem; }
+.lista-lateral .item-revision .estado { margin-top: .35rem; }
 .etiqueta-con-icono .icono { color: var(--lila-texto); width: 1.3rem; height: 1.3rem; }
 
 /* Notificaciones */
@@ -531,6 +537,10 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1.25rem 0; }
 }
 
 @media (max-width: 640px) {
+  .barra-superior .interior { gap: .35rem; }
+  .menu-principal { gap: 0; }
+  .menu-principal a { padding: .35rem .4rem; }
+  .menu-usuario > summary { padding: .15rem; }
   .contenedor { padding: 1rem 1rem 2rem; }
   .fila-campos { grid-template-columns: 1fr; }
   .tarjeta { padding: 1.1rem; }

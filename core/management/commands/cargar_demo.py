@@ -188,6 +188,7 @@ class Command(BaseCommand):
                 "Certificado de título profesional (demostración)",
                 [("Nombre", usuario.get_full_name()), ("RUT", usuario.rut),
                  ("Título", "Educador/a de Párvulos"), ("Institución", "Universidad de Demostración")],
+                encabezado="Documento de respaldo · Acreditación profesional (demostración)",
             )
             solicitud = SolicitudColaborador(
                 usuario=usuario, titulo_profesional="Educador/a de Párvulos",

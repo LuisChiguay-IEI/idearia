@@ -15,14 +15,14 @@ def _escapar_pdf(texto):
     return texto.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
 
-def generar_pdf(titulo, secciones):
+def generar_pdf(titulo, secciones, encabezado="Idearia · Planificación de experiencia de aprendizaje"):
     """
     Crea un PDF de una página.
     secciones: lista de tuplas (subtítulo, texto).
     """
     instrucciones = [
         "0.18 0.42 0.85 rg 0 790 595 52 re f",
-        "BT /F2 11 Tf 1 1 1 rg 40 810 Td (" + _escapar_pdf("Idearia · Planificación de experiencia de aprendizaje") + ") Tj ET",
+        "BT /F2 11 Tf 1 1 1 rg 40 810 Td (" + _escapar_pdf(encabezado) + ") Tj ET",
     ]
     y = 752
     for linea in textwrap.wrap(titulo, 60):

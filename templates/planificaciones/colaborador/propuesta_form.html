@@ -69,15 +69,20 @@
         <h2>Mis planificaciones</h2>
         <a href="{% url 'planificaciones:mis_propuestas' %}">Ver todas</a>
       </div>
+      <div class="lista-lateral">
       {% for p in recientes %}
         <div class="item-revision">
           <span class="burbuja-icono {{ p|tema }}">{% icono p|icono_ambito %}</span>
-          <span class="texto"><strong>{{ p.titulo|truncatechars:48 }}</strong><small>{{ p.get_nivel_educativo_display|default:"Sin nivel" }}</small></span>
-          <span class="lado"><span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span></span>
+          <span class="texto">
+            <strong>{{ p.titulo|truncatechars:48 }}</strong>
+            <small>{{ p.get_nivel_educativo_display|default:"Sin nivel" }}</small>
+            <span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span>
+          </span>
         </div>
       {% empty %}
         <p class="ayuda">Aquí aparecerán tus propuestas.</p>
       {% endfor %}
+      </div>
     </section>
     <section class="tarjeta">
       <h3>{% icono "bombilla" %} Recomendaciones</h3>

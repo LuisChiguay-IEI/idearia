@@ -75,7 +75,14 @@
     });
   });
 
-  // 7. Enviar el formulario de orden al cambiar la opción
+  // 7. En pantallas pequeñas, el panel de filtros parte cerrado para ver primero los resultados
+  if (window.matchMedia("(max-width: 960px)").matches) {
+    document.querySelectorAll("details[data-cerrar-en-movil]").forEach(function (panel) {
+      panel.open = false;
+    });
+  }
+
+  // 8. Enviar el formulario de orden al cambiar la opción
   document.querySelectorAll("select[data-enviar-al-cambiar]").forEach(function (select) {
     select.addEventListener("change", function () {
       select.form.submit();

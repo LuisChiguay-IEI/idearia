@@ -38,10 +38,10 @@
           <tr>
             <td><strong>{{ u.get_full_name|default:"—" }}</strong></td>
             <td>{{ u.email }}</td>
-            <td>{{ u.rut }}</td>
+            <td class="nowrap">{{ u.rut }}</td>
             <td>{{ u.get_rol_display }}</td>
             <td>{% if u.is_active %}<span class="estado estado-activo">Activa</span>{% else %}<span class="estado estado-inactivo">Desactivada</span>{% endif %}</td>
-            <td>{{ u.date_joined|date:"d-m-Y" }}</td>
+            <td class="nowrap">{{ u.date_joined|date:"d-m-Y" }}</td>
             <td class="acciones">
               {% if u != user %}
                 <form method="post" action="{% url 'usuarios:admin_cambiar_estado' u.pk %}" data-confirmar="{% if u.is_active %}¿Desactivar la cuenta de {{ u.email }}?{% else %}¿Reactivar la cuenta de {{ u.email }}?{% endif %}">

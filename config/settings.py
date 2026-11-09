@@ -10,6 +10,7 @@ Las credenciales NUNCA se escriben en este archivo.
 """
 
 import os
+import sys
 from pathlib import Path
 
 from django.contrib.messages import constants as mensajes
@@ -219,6 +220,8 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # "Preload" inscribe el dominio en la lista HSTS de los navegadores: activarlo solo con dominio propio definitivo.
+    SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
     if env_bool("USAR_PROXY_HTTPS", False):
         SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -228,6 +231,8 @@ if not DEBUG:
 # ---------------------------------------------------------------
 LOGS_DIR = BASE_DIR / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
+# Durante "manage.py test" los mensajes van solo al archivo (salida de pruebas más legible)
+EJECUTANDO_PRUEBAS = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 LOGGING = {
     "version": 1,
@@ -245,7 +250,11 @@ LOGGING = {
         },
     },
     "loggers": {
-        "idearia": {"handlers": ["consola", "archivo"], "level": "INFO", "propagate": False},
+        "idearia": {
+            "handlers": ["archivo"] if EJECUTANDO_PRUEBAS else ["consola", "archivo"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "django.request": {"handlers": ["archivo"], "level": "WARNING", "propagate": True},
         "django.security": {"handlers": ["archivo"], "level": "WARNING", "propagate": True},
     },

@@ -26,11 +26,11 @@
         {% for s in pagina %}
           <tr>
             <td><strong>{{ s.usuario.get_full_name }}</strong><br><small>{{ s.usuario.email }}</small></td>
-            <td>{{ s.usuario.rut }}</td>
+            <td class="nowrap">{{ s.usuario.rut }}</td>
             <td>{{ s.titulo_profesional }}</td>
             <td>{{ s.institucion }}</td>
             <td>{{ s.anio_titulacion }}</td>
-            <td>{{ s.fecha_solicitud|date:"d-m-Y" }}</td>
+            <td class="nowrap">{{ s.fecha_solicitud|date:"d-m-Y" }}</td>
             <td><span class="estado estado-{{ s.estado|lower }}">{{ s.get_estado_display }}</span></td>
             <td class="acciones"><a class="boton boton-secundario boton-pequeno" href="{% url 'colaboradores:admin_detalle' s.pk %}">Revisar</a></td>
           </tr>

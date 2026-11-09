@@ -1,0 +1,11 @@
+# Normaliza los saltos de línea en el repositorio
+* text=auto
+
+# Archivos binarios
+*.png binary
+*.jpg binary
+*.pdf binary
+*.docx binary
+
+# Librerías de terceros (PDF.js): no mostrar en diffs
+static/vendor/** linguist-vendored -diff

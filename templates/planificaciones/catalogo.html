@@ -4,7 +4,7 @@
 
 {% block contenido %}
 <div class="diseno-catalogo">
-  <details class="panel-filtros" open>
+  <details class="panel-filtros" open data-cerrar-en-movil>
     <summary>{% icono "filtro" %} Filtros de búsqueda</summary>
     <form id="form-filtros" method="get" action="{% url 'planificaciones:catalogo' %}">
       <div class="grupo-filtro">
