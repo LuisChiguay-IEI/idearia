@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db import connection
+from django.test import override_settings
 from django.urls import reverse
 
 from core.pruebas_utilidades import PruebaIdearia, crear_usuario, docx_subido, pdf_subido
@@ -101,6 +102,43 @@ class ValidadorArchivosTests(PruebaIdearia):
         con_macros = SimpleUploadedFile("plan.docx", memoria.getvalue(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
         with self.assertRaises(ValidationError):
             validar_archivo(con_macros, EXTENSIONES_PLANIFICACION)
+
+
+ALMACEN_BD = {
+    "default": {"BACKEND": "core.almacenamiento.AlmacenamientoBD"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
+
+class AlmacenamientoBDTests(PruebaIdearia):
+    def test_guardar_leer_y_borrar_en_bd(self):
+        """Los archivos se guardan, leen y eliminan desde la tabla core_archivoalmacenado."""
+        from core.almacenamiento import AlmacenamientoBD
+        from core.models import ArchivoAlmacenado
+
+        almacen = AlmacenamientoBD()
+        nombre = almacen.save("planificaciones/prueba.pdf", pdf_subido())
+        self.assertTrue(almacen.exists(nombre))
+        self.assertEqual(ArchivoAlmacenado.objects.get(nombre=nombre).tamano, almacen.size(nombre))
+        with almacen.open(nombre) as archivo:
+            self.assertTrue(archivo.read().startswith(b"%PDF-"))
+        almacen.delete(nombre)
+        self.assertFalse(almacen.exists(nombre))
+        with self.assertRaises(NotImplementedError):
+            almacen.url(nombre)  # nunca hay URL pública
+
+    @override_settings(STORAGES=ALMACEN_BD)
+    def test_visor_funciona_con_archivos_en_bd(self):
+        """Con ALMACENAMIENTO_ARCHIVOS=bd, el PDF se entrega igual por la vista protegida."""
+        from core.models import ArchivoAlmacenado
+        from core.pruebas_utilidades import crear_planificacion
+
+        p = crear_planificacion(crear_usuario(Usuario.Rol.COLABORADOR))
+        self.assertTrue(ArchivoAlmacenado.objects.filter(nombre=p.archivo.name).exists())
+        self.ingresar(crear_usuario())
+        respuesta = self.client.get(reverse("planificaciones:documento", args=[p.pk]), HTTP_X_IDEARIA_VISOR="1")
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertTrue(b"".join(respuesta.streaming_content).startswith(b"%PDF-"))
 
 
 class IntegracionBaseDatosTests(PruebaIdearia):

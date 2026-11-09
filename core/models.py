@@ -1,7 +1,27 @@
-"""Registro de acciones administrativas (auditoría, RNF-11)."""
+"""Registro de acciones administrativas (auditoría, RNF-11) y almacenamiento de archivos en BD."""
 
 from django.conf import settings
 from django.db import models
+
+
+class ArchivoAlmacenado(models.Model):
+    """
+    Contenido de los archivos subidos (planificaciones y certificados) cuando
+    ALMACENAMIENTO_ARCHIVOS="bd". Se usa en el hosting (Render), cuyo disco
+    gratuito se borra al reiniciar: así los archivos quedan protegidos en Supabase.
+    """
+
+    nombre = models.CharField(max_length=255, unique=True)  # ej.: planificaciones/<uuid>.pdf
+    contenido = models.BinaryField()
+    tamano = models.PositiveIntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "archivo almacenado"
+        verbose_name_plural = "archivos almacenados"
+
+    def __str__(self):
+        return self.nombre
 
 
 class RegistroAccion(models.Model):

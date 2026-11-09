@@ -83,7 +83,14 @@ class PruebaIdearia(TestCase):
     @classmethod
     def setUpClass(cls):
         cls._carpeta_media = tempfile.mkdtemp(prefix="idearia_pruebas_")
-        cls._override = override_settings(MEDIA_ROOT=cls._carpeta_media)
+        # Las pruebas siempre guardan archivos en una carpeta temporal (no en la BD ni en media_protegida)
+        cls._override = override_settings(
+            MEDIA_ROOT=cls._carpeta_media,
+            STORAGES={
+                "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+            },
+        )
         cls._override.enable()
         super().setUpClass()
 

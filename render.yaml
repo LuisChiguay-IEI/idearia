@@ -1,0 +1,42 @@
+# Configuración de despliegue en Render (https://render.com) como "Blueprint".
+# Render lee este archivo desde GitHub y crea el servicio web automáticamente.
+# Los valores marcados con "sync: false" se ingresan a mano en el panel de Render
+# (son secretos y NO deben escribirse aquí).
+services:
+  - type: web
+    name: idearia
+    runtime: python
+    plan: free
+    # Misma región que la base de datos de Supabase (us-west-2, Oregón): menor latencia
+    region: oregon
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput
+    startCommand: gunicorn config.wsgi:application --workers 2 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: USAR_PROXY_HTTPS
+        value: "True"
+      - key: DB_ENGINE
+        value: supabase
+      - key: DB_HOST
+        value: aws-1-us-west-2.pooler.supabase.com
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: postgres
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: DB_CONN_MAX_AGE
+        value: "60"
+      - key: ALMACENAMIENTO_ARCHIVOS
+        value: bd
+      - key: ADMIN_URL
+        value: admin-django/

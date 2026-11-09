@@ -51,6 +51,12 @@ DEBUG = env_bool("DEBUG", False)
 ALLOWED_HOSTS = env_lista("ALLOWED_HOSTS", "127.0.0.1,localhost")
 CSRF_TRUSTED_ORIGINS = env_lista("CSRF_TRUSTED_ORIGINS")
 
+# En Render, la plataforma informa el dominio público (ej.: idearia.onrender.com)
+RENDER_HOST = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_HOST}")
+
 
 # ---------------------------------------------------------------
 # Aplicaciones
@@ -73,6 +79,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Sirve CSS, JS e imágenes en producción (DEBUG=False), comprimidos
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -199,6 +207,20 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # ---------------------------------------------------------------
 MEDIA_ROOT = BASE_DIR / "media_protegida"
 TAMANO_MAXIMO_ARCHIVO_MB = int(os.getenv("TAMANO_MAXIMO_ARCHIVO_MB", "10"))
+
+# ALMACENAMIENTO_ARCHIVOS="disco" -> carpeta media_protegida/ (desarrollo)
+# ALMACENAMIENTO_ARCHIVOS="bd"    -> tabla core_archivoalmacenado en Supabase (hosting sin disco persistente)
+ALMACENAMIENTO_ARCHIVOS = os.getenv("ALMACENAMIENTO_ARCHIVOS", "disco").strip().lower()
+STORAGES = {
+    "default": {
+        "BACKEND": (
+            "core.almacenamiento.AlmacenamientoBD"
+            if ALMACENAMIENTO_ARCHIVOS == "bd"
+            else "django.core.files.storage.FileSystemStorage"
+        )
+    },
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
