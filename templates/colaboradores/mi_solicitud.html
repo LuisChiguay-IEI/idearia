@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Mi acreditación{% endblock %}
+
+{% block contenido %}
+<div class="encabezado-pagina">
+  <div>
+    <p class="eyebrow">Profesional Colaborador/a</p>
+    <h1>Mi acreditación</h1>
+    <p>Para aportar planificaciones, un administrador debe validar tu título profesional.</p>
+  </div>
+</div>
+
+{% if user.es_colaborador %}
+  <div class="alerta alerta-success">{% icono "verificado" %}<p>Tu acreditación está aprobada. Ya puedes <a href="{% url 'planificaciones:crear_propuesta' %}">crear propuestas pedagógicas</a>.</p></div>
+  <br>
+{% endif %}
+
+{% if actual %}
+  <section class="tarjeta">
+    <div class="encabezado-pagina">
+      <h2>Solicitud del {{ actual.fecha_solicitud|date:"d-m-Y" }}</h2>
+      <span class="estado estado-{{ actual.estado|lower }}">{{ actual.get_estado_display }}</span>
+    </div>
+    <dl class="datos-definicion">
+      <dt>RUT</dt><dd>{{ user.rut }}</dd>
+      <dt>Nombre completo</dt><dd>{{ user.get_full_name }}</dd>
+      <dt>Título profesional</dt><dd>{{ actual.titulo_profesional }}</dd>
+      <dt>Institución</dt><dd>{{ actual.institucion }}</dd>
+      <dt>Año de titulación</dt><dd>{{ actual.anio_titulacion }}</dd>
+      <dt>Documento</dt><dd><a href="{% url 'colaboradores:documento' actual.pk %}" target="_blank" rel="noopener">{{ actual.nombre_archivo }}</a></dd>
+      {% if actual.fecha_resolucion %}<dt>Fecha de resolución</dt><dd>{{ actual.fecha_resolucion|date:"d-m-Y H:i" }}</dd>{% endif %}
+    </dl>
+    {% if actual.estado == "PENDIENTE" or actual.estado == "EN_REVISION" %}
+      <br><div class="alerta alerta-info">{% icono "reloj" %}<p>Tu solicitud está siendo procesada. Recibirás una notificación con el resultado.</p></div>
+    {% elif actual.estado == "RECHAZADA" %}
+      <br><div class="alerta alerta-error">{% icono "alerta" %}<p><strong>Motivo del rechazo:</strong> {{ actual.observacion_admin }}</p></div>
+      <br><a class="boton boton-primario" href="{% url 'colaboradores:nueva_solicitud' %}">{% icono "reintentar" %} Enviar una nueva solicitud</a>
+    {% endif %}
+  </section>
+
+  {% if solicitudes|length > 1 %}
+    <section class="tarjeta">
+      <h3>Historial de solicitudes</h3>
+      <div class="tabla-contenedor">
+        <table class="tabla">
+          <thead><tr><th>Fecha</th><th>Título</th><th>Estado</th><th>Observación</th></tr></thead>
+          <tbody>
+            {% for s in solicitudes %}
+              <tr><td>{{ s.fecha_solicitud|date:"d-m-Y" }}</td><td>{{ s.titulo_profesional }}</td><td><span class="estado estado-{{ s.estado|lower }}">{{ s.get_estado_display }}</span></td><td>{{ s.observacion_admin|default:"—" }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% endif %}
+{% else %}
+  <section class="tarjeta vacio">
+    {% icono "verificado" %}
+    <h2>Aún no has solicitado tu acreditación</h2>
+    <p>Necesitarás tu título profesional, la institución, el año de titulación y un certificado (PDF, JPG o PNG).</p>
+    <a class="boton boton-primario" href="{% url 'colaboradores:nueva_solicitud' %}">{% icono "subir" %} Solicitar acreditación</a>
+  </section>
+{% endif %}
+{% endblock %}

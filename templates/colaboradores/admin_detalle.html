@@ -1,0 +1,82 @@
+{% extends "base_panel.html" %}
+{% load static idearia %}
+{% block titulo %}Revisar solicitud{% endblock %}
+
+{% block panel %}
+<a class="volver" href="{% url 'colaboradores:admin_lista' %}">{% icono "flecha-izq" %} Volver a solicitudes</a>
+
+<div class="detalle-cuerpo">
+  <div>
+    <section class="tarjeta">
+      <div class="encabezado-pagina">
+        <div class="seccion-titulo">
+          <span class="avatar">{{ s.usuario.iniciales }}</span>
+          <div><h1>{{ s.usuario.get_full_name }}</h1><small class="ayuda">Solicitud enviada el {{ s.fecha_solicitud|date:"d-m-Y H:i" }}</small></div>
+        </div>
+        <span class="estado estado-{{ s.estado|lower }}">{{ s.get_estado_display }}</span>
+      </div>
+
+      <dl class="datos-definicion">
+        <dt>RUT</dt><dd>{{ s.usuario.rut }}</dd>
+        <dt>Correo</dt><dd>{{ s.usuario.email }}</dd>
+        <dt>Cuenta creada</dt><dd>{{ s.usuario.date_joined|date:"d-m-Y" }}</dd>
+        <dt>Título profesional</dt><dd>{{ s.titulo_profesional }}</dd>
+        <dt>Institución</dt><dd>{{ s.institucion }}</dd>
+        <dt>Año de titulación</dt><dd>{{ s.anio_titulacion }}</dd>
+        <dt>Documento</dt><dd>{{ s.nombre_archivo }}</dd>
+        {% if s.revisado_por %}<dt>Revisado por</dt><dd>{{ s.revisado_por.get_full_name }}</dd>{% endif %}
+        {% if s.fecha_resolucion %}<dt>Resolución</dt><dd>{{ s.fecha_resolucion|date:"d-m-Y H:i" }}</dd>{% endif %}
+        {% if s.observacion_admin %}<dt>Observación</dt><dd>{{ s.observacion_admin }}</dd>{% endif %}
+      </dl>
+    </section>
+
+    <section class="tarjeta">
+      <h2>{% icono "archivo" %} Documento de respaldo</h2>
+      {% if es_pdf %}
+        <div class="visor-marco">
+          <div id="visor-pdf" data-url="{% url 'colaboradores:documento' s.pk %}" data-worker="{% static 'vendor/pdfjs/pdf.worker.min.js' %}"></div>
+          <p id="visor-estado" class="visor-estado">Cargando documento...</p>
+        </div>
+      {% else %}
+        <img class="documento-imagen" src="{% url 'colaboradores:documento' s.pk %}" alt="Documento de acreditación de {{ s.usuario.get_full_name }}">
+      {% endif %}
+    </section>
+  </div>
+
+  <div>
+    <section class="tarjeta">
+      <h2>{% icono "escudo" %} Decisión</h2>
+      {% if s.esta_activa %}
+        <form method="post" action="{% url 'colaboradores:admin_resolver' s.pk %}" class="formulario">
+          {% csrf_token %}
+          {% include "core/_campo.html" with campo=form.observacion %}
+          <div class="grupo-botones">
+            {% if s.estado == "PENDIENTE" %}<button class="boton boton-contorno" name="accion" value="revisar" type="submit">{% icono "reloj" %} Tomar en revisión</button>{% endif %}
+            <button class="boton boton-peligro" name="accion" value="rechazar" type="submit">{% icono "cerrar" %} Rechazar</button>
+            <button class="boton boton-exito" name="accion" value="aprobar" type="submit">{% icono "check" %} Aprobar acreditación</button>
+          </div>
+        </form>
+        <p class="ayuda">Al aprobar, el usuario pasa a rol Profesional Colaborador/a y recibe una notificación.</p>
+      {% else %}
+        <p>Esta solicitud ya fue procesada ({{ s.get_estado_display }}). No se pueden tomar nuevas decisiones sobre ella.</p>
+      {% endif %}
+    </section>
+
+    {% if anteriores %}
+      <section class="tarjeta">
+        <h3>Solicitudes anteriores del usuario</h3>
+        {% for a in anteriores %}
+          <p><span class="estado estado-{{ a.estado|lower }}">{{ a.get_estado_display }}</span> {{ a.fecha_solicitud|date:"d-m-Y" }} · {{ a.observacion_admin|default:"" }}</p>
+        {% endfor %}
+      </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {% if es_pdf %}
+    <script src="{% static 'vendor/pdfjs/pdf.min.js' %}"></script>
+    <script src="{% static 'js/visor.js' %}"></script>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Solicitar acreditación{% endblock %}
+
+{% block contenido %}
+<a class="volver" href="{% url 'colaboradores:mi_solicitud' %}">{% icono "flecha-izq" %} Volver</a>
+<div class="detalle-cuerpo">
+  <section class="tarjeta">
+    <div class="encabezado-formulario">
+      <span class="burbuja-mas">{% icono "verificado" %}</span>
+      <div>
+        <h1>Solicitud para ser Profesional Colaborador/a</h1>
+        <p class="ayuda">Registra tus antecedentes profesionales. Un administrador los revisará antes de habilitar tu perfil.</p>
+      </div>
+    </div>
+
+    {% include "core/_errores_formulario.html" %}
+
+    <form method="post" enctype="multipart/form-data" class="formulario" novalidate>
+      {% csrf_token %}
+      <div class="fila-campos">
+        <div class="campo"><label>RUT</label><input type="text" value="{{ user.rut }}" disabled></div>
+        <div class="campo"><label>Nombre completo</label><input type="text" value="{{ user.get_full_name }}" disabled></div>
+      </div>
+      <p class="ayuda">El RUT y el nombre se toman de tu cuenta.</p>
+      {% include "core/_campo.html" with campo=form.titulo_profesional %}
+      <div class="fila-campos">
+        {% include "core/_campo.html" with campo=form.institucion %}
+        {% include "core/_campo.html" with campo=form.anio_titulacion %}
+      </div>
+      <div class="campo{% if form.documento_respaldo.errors %} campo-con-error{% endif %}">
+        <label for="{{ form.documento_respaldo.id_for_label }}">{{ form.documento_respaldo.label }} <span class="obligatorio">*</span></label>
+        <div class="zona-archivo">
+          {% icono "subir" "icono-grande" %}
+          <div class="detalle"><strong>Selecciona tu certificado</strong><br>{{ form.documento_respaldo.help_text }}<br><span id="aviso-documento">Ningún archivo seleccionado</span></div>
+          <input type="file" name="documento_respaldo" id="{{ form.documento_respaldo.id_for_label }}" accept=".pdf,.jpg,.jpeg,.png" data-max-mb="10" data-aviso="aviso-documento">
+        </div>
+        {% for error in form.documento_respaldo.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="campo{% if form.declaracion.errors %} campo-con-error{% endif %}">
+        <label class="casilla">{{ form.declaracion }} {{ form.declaracion.label }}</label>
+        {% for error in form.declaracion.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="grupo-botones derecha">
+        <button type="submit" class="boton boton-primario">{% icono "enviar" %} Enviar solicitud</button>
+      </div>
+    </form>
+  </section>
+
+  <aside class="tarjeta">
+    <h3>{% icono "escudo" %} ¿Qué pasa con mis documentos?</h3>
+    <p class="ayuda">Tu certificado solo puede verlo un administrador de Idearia para validar tu título. No se publica ni se comparte con otros usuarios.</p>
+    <h3>{% icono "reloj" %} Estados de la solicitud</h3>
+    <dl class="datos-definicion">
+      <dt><span class="estado estado-pendiente">Pendiente</span></dt><dd>Recibida, en espera.</dd>
+      <dt><span class="estado estado-en_revision">En revisión</span></dt><dd>Un administrador la está evaluando.</dd>
+      <dt><span class="estado estado-aprobada">Aprobada</span></dt><dd>Puedes aportar contenido.</dd>
+      <dt><span class="estado estado-rechazada">Rechazada</span></dt><dd>Revisa el motivo y vuelve a postular.</dd>
+    </dl>
+  </aside>
+</div>
+{% endblock %}

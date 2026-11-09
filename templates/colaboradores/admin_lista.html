@@ -1,0 +1,46 @@
+{% extends "base_panel.html" %}
+{% load idearia %}
+{% block titulo %}Solicitudes de colaboradores{% endblock %}
+
+{% block panel %}
+<div class="encabezado-pagina">
+  <div>
+    <p class="eyebrow">Administrador</p>
+    <h1>Solicitudes de Profesionales Colaboradores</h1>
+    <p>Revisa antecedentes y documentos antes de habilitar a un usuario para aportar contenido.</p>
+  </div>
+</div>
+
+<nav class="pestanas" aria-label="Filtrar por estado">
+  {% for valor, etiqueta, cantidad in pestanas %}
+    <a class="{% if estado_actual == valor %}activo{% endif %}" href="?estado={{ valor }}">{{ etiqueta }} <span class="contador">{{ cantidad }}</span></a>
+  {% endfor %}
+</nav>
+
+<div class="tarjeta">
+{% if pagina.object_list %}
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead><tr><th>Solicitante</th><th>RUT</th><th>Título</th><th>Institución</th><th>Año</th><th>Fecha</th><th>Estado</th><th class="acciones"></th></tr></thead>
+      <tbody>
+        {% for s in pagina %}
+          <tr>
+            <td><strong>{{ s.usuario.get_full_name }}</strong><br><small>{{ s.usuario.email }}</small></td>
+            <td>{{ s.usuario.rut }}</td>
+            <td>{{ s.titulo_profesional }}</td>
+            <td>{{ s.institucion }}</td>
+            <td>{{ s.anio_titulacion }}</td>
+            <td>{{ s.fecha_solicitud|date:"d-m-Y" }}</td>
+            <td><span class="estado estado-{{ s.estado|lower }}">{{ s.get_estado_display }}</span></td>
+            <td class="acciones"><a class="boton boton-secundario boton-pequeno" href="{% url 'colaboradores:admin_detalle' s.pk %}">Revisar</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "core/_paginacion.html" %}
+{% else %}
+  <div class="vacio">{% icono "check" %}<h2>No hay solicitudes por revisar</h2><p>Cuando un educador solicite acreditación aparecerá aquí.</p></div>
+{% endif %}
+</div>
+{% endblock %}
