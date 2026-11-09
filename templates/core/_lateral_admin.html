@@ -1,0 +1,11 @@
+{% load idearia %}
+<p class="eyebrow">Administrador</p>
+<nav>
+  <a class="{% activo 'core:panel_admin' %}" href="{% url 'core:panel_admin' %}">{% icono "grafico" %} Panel general</a>
+  <a class="{% activo 'planificaciones:admin_revision' %}" href="{% url 'planificaciones:admin_revision' %}">{% icono "lista" %} Revisión de contenido</a>
+  <a class="{% activo 'colaboradores:admin_lista' 'colaboradores:admin_detalle' %}" href="{% url 'colaboradores:admin_lista' %}">{% icono "verificado" %} Solicitudes de colaboradores</a>
+  <a class="{% activo 'usuarios:admin_lista' %}" href="{% url 'usuarios:admin_lista' %}">{% icono "usuarios" %} Usuarios</a>
+  <a class="{% activo 'core:auditoria' %}" href="{% url 'core:auditoria' %}">{% icono "registro" %} Registro de acciones</a>
+  <a href="{% url 'planificaciones:catalogo' %}">{% icono "libro" %} Contenidos publicados</a>
+</nav>
+<div class="tarjeta-inspiracion">{% icono "escudo" %} Todas las decisiones de revisión quedan registradas con fecha, usuario e IP.</div>

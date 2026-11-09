@@ -1,0 +1,12 @@
+{% load idearia %}
+{% if pagina.has_other_pages %}
+<nav class="paginacion" aria-label="Paginación">
+  {% if pagina.has_previous %}
+    <a class="boton boton-contorno boton-pequeno" href="{% querystring page=pagina.previous_page_number %}">{% icono "flecha-izq" %} Anterior</a>
+  {% endif %}
+  <span class="actual">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}
+    <a class="boton boton-contorno boton-pequeno" href="{% querystring page=pagina.next_page_number %}">Siguiente {% icono "flecha-der" %}</a>
+  {% endif %}
+</nav>
+{% endif %}

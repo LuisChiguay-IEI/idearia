@@ -1,0 +1,93 @@
+{% extends "base_panel.html" %}
+{% load idearia %}
+{% block titulo %}Panel de administración{% endblock %}
+
+{% block panel %}
+<div class="encabezado-pagina">
+  <div>
+    <p class="eyebrow">Administrador</p>
+    <h1>Panel general</h1>
+    <p>Resumen del contenido y las solicitudes que requieren tu revisión.</p>
+  </div>
+</div>
+
+<div class="indicadores">
+  <a class="indicador" href="{% url 'planificaciones:admin_revision' %}">
+    <span class="burbuja-icono tema-2">{% icono "lista" %}</span>
+    <div><strong>{{ propuestas_en_revision }}</strong><span>Propuestas en revisión</span></div>
+  </a>
+  <a class="indicador" href="{% url 'colaboradores:admin_lista' %}">
+    <span class="burbuja-icono tema-1">{% icono "verificado" %}</span>
+    <div><strong>{{ solicitudes_activas }}</strong><span>Solicitudes de colaborador</span></div>
+  </a>
+  <a class="indicador" href="{% url 'planificaciones:admin_revision' %}?estado=PUBLICADA">
+    <span class="burbuja-icono tema-0">{% icono "libro" %}</span>
+    <div><strong>{{ ideas_publicadas }}</strong><span>Ideas publicadas</span></div>
+  </a>
+  <a class="indicador" href="{% url 'usuarios:admin_lista' %}">
+    <span class="burbuja-icono tema-3">{% icono "usuarios" %}</span>
+    <div><strong>{{ usuarios_activos }}</strong><span>Usuarios activos</span></div>
+  </a>
+</div>
+
+<div class="detalle-cuerpo">
+  <div>
+    <section class="tarjeta">
+      <h2>{% icono "lista" %} Propuestas esperando revisión</h2>
+      {% if ultimas_propuestas %}
+        <div class="lista-revision">
+          {% for p in ultimas_propuestas %}
+            <a class="item-revision" href="{% url 'planificaciones:admin_detalle' p.pk %}">
+              <span class="burbuja-icono {{ p|tema }}">{% icono p|icono_ambito %}</span>
+              <span class="texto"><strong>{{ p.titulo }}</strong><small>{{ p.colaborador.get_full_name }} · {{ p.get_nivel_educativo_display|default:"Sin nivel" }}</small></span>
+              <span class="lado"><span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span>{{ p.fecha_envio|date:"d M Y" }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="vacio">{% icono "check" %}<br>No hay propuestas pendientes de revisión.</p>
+      {% endif %}
+    </section>
+
+    <section class="tarjeta">
+      <h2>{% icono "registro" %} Últimas acciones administrativas</h2>
+      {% if ultimas_acciones %}
+        <div class="tabla-contenedor">
+          <table class="tabla">
+            <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th></tr></thead>
+            <tbody>
+              {% for r in ultimas_acciones %}
+                <tr><td>{{ r.fecha|date:"d-m-Y H:i" }}</td><td>{{ r.usuario.email|default:"—" }}</td><td>{{ r.get_accion_display }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>Aún no hay acciones registradas.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <div>
+    <section class="tarjeta">
+      <h2>{% icono "verificado" %} Solicitudes de colaborador</h2>
+      {% for s in ultimas_solicitudes %}
+        <a class="item-revision" href="{% url 'colaboradores:admin_detalle' s.pk %}">
+          <span class="avatar avatar-pequeno">{{ s.usuario.iniciales }}</span>
+          <span class="texto"><strong>{{ s.usuario.get_full_name }}</strong><small>{{ s.titulo_profesional }}</small></span>
+          <span class="lado"><span class="estado estado-{{ s.estado|lower }}">{{ s.get_estado_display }}</span></span>
+        </a>
+      {% empty %}
+        <p>No hay solicitudes pendientes.</p>
+      {% endfor %}
+    </section>
+
+    <section class="tarjeta">
+      <h2>{% icono "usuarios" %} Usuarios por perfil</h2>
+      <dl class="datos-definicion">
+        {% for etiqueta, total in usuarios_por_rol %}<dt>{{ etiqueta }}</dt><dd>{{ total }}</dd>{% endfor %}
+      </dl>
+    </section>
+  </div>
+</div>
+{% endblock %}

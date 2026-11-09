@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Notificaciones{% endblock %}
+
+{% block contenido %}
+<div class="encabezado-pagina">
+  <div>
+    <h1>Notificaciones</h1>
+    <p>Avisos sobre tus solicitudes, propuestas y novedades de Idearia.</p>
+  </div>
+  {% if notificaciones_sin_leer %}
+    <form method="post" action="{% url 'notificaciones:marcar_leidas' %}">
+      {% csrf_token %}
+      <button class="boton boton-contorno" type="submit">{% icono "check" %} Marcar todas como leídas</button>
+    </form>
+  {% endif %}
+</div>
+
+{% if pagina.object_list %}
+  <div class="lista-notificaciones">
+    {% for n in pagina %}
+      <a class="notificacion{% if not n.leida %} no-leida{% endif %}" href="{% url 'notificaciones:abrir' n.pk %}">
+        <span class="burbuja-icono tema-0 avatar avatar-pequeno">{% icono "campana" %}</span>
+        <span class="contenido">
+          <strong>{{ n.get_tipo_display }}</strong>{% if not n.leida %} <span class="etiqueta etiqueta-azul">Nueva</span>{% endif %}
+          <br>{{ n.mensaje }}
+          <br><small>{{ n.fecha_envio|date:"d-m-Y H:i" }}</small>
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+  {% include "core/_paginacion.html" %}
+{% else %}
+  <div class="tarjeta vacio">{% icono "campana" %}<h2>No tienes notificaciones</h2><p>Aquí verás los cambios de estado de tus solicitudes y propuestas.</p></div>
+{% endif %}
+{% endblock %}

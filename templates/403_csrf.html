@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Formulario expirado{% endblock %}
+{% block contenido %}
+<div class="pagina-error tarjeta">
+  <p class="codigo">403</p>
+  <h1>El formulario expiró</h1>
+  <p>Por seguridad, el formulario debe enviarse desde Idearia y dentro de tu sesión. Vuelve atrás, recarga la página e inténtalo nuevamente.</p>
+  <a class="boton boton-primario" href="{% url 'core:inicio' %}">{% icono "inicio" %} Volver al inicio</a>
+</div>
+{% endblock %}

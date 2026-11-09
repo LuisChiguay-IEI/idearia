@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static idearia %}
+{% block titulo %}Iniciar sesión{% endblock %}
+{% block clase_body %}pagina-acceso{% endblock %}
+
+{% block principal %}
+<main id="contenido" class="acceso">
+  <div class="acceso-lado">
+    <p class="acceso-frase">Pequeñas ideas, <span>grandes aprendizajes.</span></p>
+    <p>Un espacio para encontrar inspiración pedagógica aportada por profesionales de la Educación Parvularia.</p>
+  </div>
+
+  <div class="tarjeta-acceso">
+    <div class="logo-grande">
+      <img src="{% static 'img/logo.svg' %}" alt="" width="76" height="76">
+      <span class="marca-nombre">Idearia</span>
+      <p>Ideas e inspiración para tus experiencias educativas.</p>
+    </div>
+
+    {% include "core/_errores_formulario.html" %}
+
+    <form method="post" class="formulario" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% include "core/_campo.html" with campo=form.username %}
+      <div class="campo{% if form.password.errors %} campo-con-error{% endif %}">
+        <label for="{{ form.password.id_for_label }}">Contraseña</label>
+        <div class="campo-clave">
+          {{ form.password }}
+          <button type="button" class="alternar-clave" data-alternar-clave="{{ form.password.id_for_label }}" aria-label="Mostrar contraseña">{% icono "ojo" %}</button>
+        </div>
+      </div>
+      <button type="submit" class="boton boton-primario boton-bloque">Iniciar sesión {% icono "flecha-der" %}</button>
+    </form>
+
+    <div class="separador">o</div>
+    <a class="boton boton-menta boton-bloque" href="{% url 'colaboradores:informacion' %}">{% icono "usuarios" %} Zona colaborador</a>
+
+    <p class="pie-acceso">¿Aún no tienes cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate</a></p>
+  </div>
+
+  <div class="acceso-lado acceso-decoracion">
+    <div class="burbuja-destacada tema-0">{% icono "bombilla" %} Descubre recursos</div>
+    <div class="burbuja-destacada tema-2">{% icono "usuarios" %} Conecta con la comunidad</div>
+    <div class="burbuja-destacada tema-1">{% icono "brote" %} Inspira nuevas experiencias</div>
+  </div>
+</main>
+{% endblock %}

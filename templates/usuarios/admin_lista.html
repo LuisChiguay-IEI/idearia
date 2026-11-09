@@ -1,0 +1,68 @@
+{% extends "base_panel.html" %}
+{% load idearia %}
+{% block titulo %}Gestión de usuarios{% endblock %}
+
+{% block panel %}
+<div class="encabezado-pagina">
+  <div>
+    <p class="eyebrow">Administrador</p>
+    <h1>Gestión de usuarios</h1>
+    <p>Activa o desactiva cuentas. Una cuenta desactivada no puede iniciar sesión, pero conserva su información.</p>
+  </div>
+</div>
+
+<form method="get" class="tarjeta tarjeta-compacta">
+  <div class="fila-campos">
+    <div class="campo">
+      <label for="{{ form.q.id_for_label }}">Buscar por nombre, correo o RUT</label>
+      {{ form.q }}
+    </div>
+    <div class="fila-campos">
+      <div class="campo"><label for="{{ form.rol.id_for_label }}">Rol</label>{{ form.rol }}</div>
+      <div class="campo"><label for="{{ form.estado.id_for_label }}">Estado</label>{{ form.estado }}</div>
+    </div>
+  </div>
+  <div class="grupo-botones derecha">
+    <a class="boton boton-texto" href="{% url 'usuarios:admin_lista' %}">Limpiar</a>
+    <button class="boton boton-primario boton-pequeno" type="submit">{% icono "buscar" %} Buscar</button>
+  </div>
+</form>
+
+<div class="tarjeta">
+{% if pagina.object_list %}
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead><tr><th>Nombre</th><th>Correo</th><th>RUT</th><th>Rol</th><th>Estado</th><th>Registro</th><th class="acciones">Acción</th></tr></thead>
+      <tbody>
+        {% for u in pagina %}
+          <tr>
+            <td><strong>{{ u.get_full_name|default:"—" }}</strong></td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.rut }}</td>
+            <td>{{ u.get_rol_display }}</td>
+            <td>{% if u.is_active %}<span class="estado estado-activo">Activa</span>{% else %}<span class="estado estado-inactivo">Desactivada</span>{% endif %}</td>
+            <td>{{ u.date_joined|date:"d-m-Y" }}</td>
+            <td class="acciones">
+              {% if u != user %}
+                <form method="post" action="{% url 'usuarios:admin_cambiar_estado' u.pk %}" data-confirmar="{% if u.is_active %}¿Desactivar la cuenta de {{ u.email }}?{% else %}¿Reactivar la cuenta de {{ u.email }}?{% endif %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="volver" value="{{ request.get_full_path }}">
+                  {% if u.is_active %}
+                    <button class="boton boton-peligro boton-pequeno" type="submit">Desactivar</button>
+                  {% else %}
+                    <button class="boton boton-menta boton-pequeno" type="submit">Reactivar</button>
+                  {% endif %}
+                </form>
+              {% else %}<small>Tu cuenta</small>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "core/_paginacion.html" %}
+{% else %}
+  <div class="vacio">{% icono "usuarios" %}<h2>No se encontraron usuarios</h2><p>Prueba con otro criterio de búsqueda.</p></div>
+{% endif %}
+</div>
+{% endblock %}

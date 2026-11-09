@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static idearia %}
+{% block titulo %}Crear cuenta{% endblock %}
+{% block clase_body %}pagina-acceso{% endblock %}
+
+{% block principal %}
+<main id="contenido" class="acceso ancho">
+  <div class="acceso-lado">
+    <p class="acceso-frase">Únete a <span>Idearia.</span></p>
+    <p>Busca ideas pedagógicas, guarda tus favoritas y comparte tu experiencia con otros educadores y educadoras.</p>
+  </div>
+
+  <div class="tarjeta-acceso">
+    <div class="logo-grande">
+      <img src="{% static 'img/logo.svg' %}" alt="" width="64" height="64">
+      <h1>Crear cuenta</h1>
+      <p>Registro para Educadores y Educadoras de Párvulos.</p>
+    </div>
+
+    {% include "core/_errores_formulario.html" %}
+
+    <form method="post" class="formulario" novalidate>
+      {% csrf_token %}
+      <div class="fila-campos">
+        {% include "core/_campo.html" with campo=form.first_name %}
+        {% include "core/_campo.html" with campo=form.last_name %}
+      </div>
+      <div class="fila-campos">
+        {% include "core/_campo.html" with campo=form.rut %}
+        {% include "core/_campo.html" with campo=form.fecha_nacimiento %}
+      </div>
+      {% include "core/_campo.html" with campo=form.email %}
+      <div class="fila-campos">
+        {% include "core/_campo.html" with campo=form.password1 %}
+        {% include "core/_campo.html" with campo=form.password2 %}
+      </div>
+      <p class="ayuda">Si eres profesional titulado/a y quieres aportar planificaciones, después de registrarte podrás solicitar tu acreditación como Profesional Colaborador/a.</p>
+      <button type="submit" class="boton boton-primario boton-bloque">Registrarse</button>
+    </form>
+
+    <p class="pie-acceso">¿Ya tienes cuenta? <a href="{% url 'usuarios:login' %}">Inicia sesión</a></p>
+  </div>
+  <div class="acceso-lado"></div>
+</main>
+{% endblock %}

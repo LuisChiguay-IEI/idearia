@@ -1,0 +1,12 @@
+{% load idearia %}
+{% if messages %}
+<div class="mensajes" role="status" aria-live="polite">
+  {% for mensaje in messages %}
+    <div class="alerta alerta-{{ mensaje.tags }}">
+      {% if mensaje.tags == "success" %}{% icono "check" %}{% elif mensaje.tags == "error" %}{% icono "alerta" %}{% else %}{% icono "bombilla" %}{% endif %}
+      <p>{{ mensaje }}</p>
+      <button type="button" class="cerrar-alerta" aria-label="Cerrar mensaje">{% icono "cerrar" %}</button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

@@ -1,0 +1,1 @@
+{% load idearia %}<span class="estrellas" role="img" aria-label="{{ promedio|floatformat:1 }} de 5 estrellas">{% for i in llenas %}{% icono "estrella" "icono-relleno" %}{% endfor %}{% for i in vacias %}<span class="vacia">{% icono "estrella" %}</span>{% endfor %}</span>

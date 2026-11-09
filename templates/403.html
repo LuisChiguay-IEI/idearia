@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Acceso no autorizado{% endblock %}
+{% block contenido %}
+<div class="pagina-error tarjeta">
+  <p class="codigo">403</p>
+  <h1>No tienes permisos para acceder</h1>
+  <p>Esta sección está disponible solo para perfiles autorizados. Si crees que es un error, contacta al administrador de Idearia.</p>
+  <a class="boton boton-primario" href="{% url 'core:inicio' %}">{% icono "inicio" %} Volver al inicio</a>
+</div>
+{% endblock %}

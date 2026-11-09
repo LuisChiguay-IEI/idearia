@@ -1,0 +1,69 @@
+{% load static idearia %}
+<header class="barra-superior">
+  <div class="interior">
+    <a class="marca" href="{% url 'core:inicio' %}">
+      <img src="{% static 'img/logo.svg' %}" alt="" width="44" height="44">
+      <span class="marca-nombre">Idearia</span>
+      <span class="marca-lema">Ideas e inspiración para tus experiencias educativas.</span>
+    </a>
+
+    {% if user.is_authenticated %}
+      <form class="buscador-superior" action="{% url 'planificaciones:catalogo' %}" method="get" role="search">
+        {% icono "buscar" %}
+        <label class="visualmente-oculto" for="busqueda-superior">Buscar ideas</label>
+        <input id="busqueda-superior" type="search" name="q" maxlength="100" placeholder="Buscar ideas, temáticas, materiales..." value="{{ request.GET.q|default:'' }}">
+      </form>
+
+      <nav class="menu-principal" aria-label="Menú principal">
+        {% if user.es_administrador %}
+          <a class="{% activo 'core:panel_admin' %}" href="{% url 'core:panel_admin' %}">{% icono "grafico" %}<span>Panel</span></a>
+          <a class="{% activo 'planificaciones:admin_revision' %}" href="{% url 'planificaciones:admin_revision' %}">{% icono "lista" %}<span>Revisión</span></a>
+          <a class="{% activo 'planificaciones:catalogo' %}" href="{% url 'planificaciones:catalogo' %}">{% icono "inicio" %}<span>Catálogo</span></a>
+        {% else %}
+          <a class="{% activo 'planificaciones:catalogo' %}" href="{% url 'planificaciones:catalogo' %}">{% icono "inicio" %}<span>Inicio</span></a>
+          <a class="{% activo 'interacciones:mis_favoritos' %}" href="{% url 'interacciones:mis_favoritos' %}">{% icono "corazon" %}<span>Mis favoritos</span></a>
+          {% if user.es_colaborador %}
+            <a class="{% activo 'planificaciones:panel_colaborador' 'planificaciones:mis_propuestas' 'planificaciones:crear_propuesta' 'planificaciones:editar_propuesta' %}" href="{% url 'planificaciones:panel_colaborador' %}">{% icono "brote" %}<span>Mis aportes</span></a>
+          {% else %}
+            <a class="{% activo 'colaboradores:mi_solicitud' 'colaboradores:nueva_solicitud' %}" href="{% url 'colaboradores:mi_solicitud' %}">{% icono "usuarios" %}<span>Ser colaborador/a</span></a>
+          {% endif %}
+        {% endif %}
+      </nav>
+
+      <a class="campana" href="{% url 'notificaciones:lista' %}" aria-label="Notificaciones ({{ notificaciones_sin_leer|default:0 }} sin leer)">
+        {% icono "campana" %}
+        {% if notificaciones_sin_leer %}<span class="burbuja">{{ notificaciones_sin_leer }}</span>{% endif %}
+      </a>
+
+      <details class="menu-usuario">
+        <summary>
+          <span class="avatar">{{ user.iniciales }}</span>
+          <span class="usuario-texto">
+            <span class="usuario-nombre">{{ user.first_name|default:user.email }}</span><br>
+            <span class="usuario-rol">{{ user.get_rol_display }}</span>
+          </span>
+        </summary>
+        <div class="desplegable">
+          <p><strong>{{ user.get_full_name }}</strong><br><small>{{ user.email }}</small></p>
+          <hr>
+          {% if user.es_colaborador %}
+            <a href="{% url 'planificaciones:panel_colaborador' %}">{% icono "brote" %} Panel colaborador</a>
+          {% endif %}
+          {% if not user.es_administrador %}
+            <a href="{% url 'colaboradores:mi_solicitud' %}">{% icono "verificado" %} Mi acreditación</a>
+          {% endif %}
+          <a href="{% url 'notificaciones:lista' %}">{% icono "campana" %} Notificaciones</a>
+          <form method="post" action="{% url 'usuarios:logout' %}">
+            {% csrf_token %}
+            <button type="submit">{% icono "salir" %} Cerrar sesión</button>
+          </form>
+        </div>
+      </details>
+    {% else %}
+      <nav class="menu-principal" aria-label="Acceso">
+        <a class="boton boton-contorno boton-pequeno" href="{% url 'usuarios:login' %}">Iniciar sesión</a>
+        <a class="boton boton-primario boton-pequeno" href="{% url 'usuarios:registro' %}">Registrarse</a>
+      </nav>
+    {% endif %}
+  </div>
+</header>

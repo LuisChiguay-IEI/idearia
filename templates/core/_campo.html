@@ -1,0 +1,7 @@
+{# Campo de formulario reutilizable. Uso: {% include "core/_campo.html" with campo=form.titulo %} #}
+<div class="campo{% if campo.errors %} campo-con-error{% endif %}{% if clase %} {{ clase }}{% endif %}">
+  <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required or obligatorio %} <span class="obligatorio" aria-hidden="true">*</span>{% endif %}</label>
+  {% if campo.help_text %}<p class="ayuda">{{ campo.help_text }}</p>{% endif %}
+  {% if opciones %}<div class="lista-opciones {{ opciones }}">{{ campo }}</div>{% else %}{{ campo }}{% endif %}
+  {% for error in campo.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+</div>

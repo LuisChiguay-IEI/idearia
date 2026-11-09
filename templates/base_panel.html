@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{# Diseño con barra lateral para el Profesional Colaborador y el Administrador #}
+{% block clase_main %}diseno-panel{% endblock %}
+{% block contenido %}
+  <aside class="lateral" aria-label="Menú de la sección">
+    {% block lateral %}
+      {% if user.es_administrador %}{% include "core/_lateral_admin.html" %}{% else %}{% include "core/_lateral_colaborador.html" %}{% endif %}
+    {% endblock %}
+  </aside>
+  <section class="panel-principal">
+    {% block panel %}{% endblock %}
+  </section>
+{% endblock %}

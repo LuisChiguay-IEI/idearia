@@ -1,0 +1,44 @@
+{% extends "base_panel.html" %}
+{% load idearia %}
+{% block titulo %}Registro de acciones{% endblock %}
+
+{% block panel %}
+<div class="encabezado-pagina">
+  <div>
+    <p class="eyebrow">Administrador</p>
+    <h1>Registro de acciones</h1>
+    <p>Trazabilidad de las decisiones administrativas: quién, qué, cuándo y desde qué dirección IP.</p>
+  </div>
+  <form method="get" class="campo">
+    <label for="filtro-accion" class="visualmente-oculto">Filtrar por acción</label>
+    <select id="filtro-accion" name="accion" data-enviar-al-cambiar>
+      <option value="">Todas las acciones</option>
+      {% for valor, etiqueta in acciones %}<option value="{{ valor }}"{% if valor == accion_actual %} selected{% endif %}>{{ etiqueta }}</option>{% endfor %}
+    </select>
+    <noscript><button class="boton boton-contorno boton-pequeno">Filtrar</button></noscript>
+  </form>
+</div>
+
+{% if pagina.object_list %}
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Objeto</th><th>Detalle</th><th>IP</th></tr></thead>
+      <tbody>
+        {% for r in pagina %}
+          <tr>
+            <td>{{ r.fecha|date:"d-m-Y H:i" }}</td>
+            <td>{{ r.usuario.email|default:"—" }}</td>
+            <td>{{ r.get_accion_display }}</td>
+            <td>{{ r.objeto_tipo }} #{{ r.objeto_id|default:"" }}</td>
+            <td>{{ r.descripcion|truncatechars:80 }}</td>
+            <td>{{ r.direccion_ip|default:"—" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "core/_paginacion.html" %}
+{% else %}
+  <div class="tarjeta vacio">{% icono "registro" %}<h2>Sin registros</h2><p>Todavía no hay acciones con este filtro.</p></div>
+{% endif %}
+{% endblock %}

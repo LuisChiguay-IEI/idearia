@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load idearia %}
+{% block titulo %}Página no encontrada{% endblock %}
+{% block contenido %}
+<div class="pagina-error tarjeta">
+  <p class="codigo">404</p>
+  <h1>No encontramos lo que buscas</h1>
+  <p>La página o idea pedagógica no existe o ya no está disponible.</p>
+  <a class="boton boton-primario" href="{% url 'core:inicio' %}">{% icono "inicio" %} Volver al inicio</a>
+</div>
+{% endblock %}

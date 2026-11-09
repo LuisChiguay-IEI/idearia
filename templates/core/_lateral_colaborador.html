@@ -1,0 +1,10 @@
+{% load idearia %}
+<p class="eyebrow">Profesional Colaborador/a</p>
+<nav>
+  <a class="{% activo 'planificaciones:panel_colaborador' %}" href="{% url 'planificaciones:panel_colaborador' %}">{% icono "inicio" %} Inicio</a>
+  <a class="{% activo 'planificaciones:crear_propuesta' %}" href="{% url 'planificaciones:crear_propuesta' %}">{% icono "mas" %} Nueva planificación</a>
+  <a class="{% activo 'planificaciones:mis_propuestas' 'planificaciones:editar_propuesta' %}" href="{% url 'planificaciones:mis_propuestas' %}">{% icono "lista" %} Estado de propuestas</a>
+  <a class="{% activo 'colaboradores:mi_solicitud' %}" href="{% url 'colaboradores:mi_solicitud' %}">{% icono "verificado" %} Mi acreditación</a>
+  <a href="{% url 'planificaciones:catalogo' %}">{% icono "libro" %} Catálogo de ideas</a>
+</nav>
+<div class="tarjeta-inspiracion">{% icono "bombilla" %} Comparte tus ideas y contribuye a una comunidad educativa más inclusiva y creativa.</div>

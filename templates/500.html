@@ -1,0 +1,20 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error interno · Idearia</title>
+  <link rel="stylesheet" href="{% static 'css/idearia.css' %}">
+</head>
+<body>
+  {# Página independiente: no usa base.html para no depender de la base de datos #}
+  <main class="contenedor">
+    <div class="pagina-error tarjeta">
+      <p class="codigo">500</p>
+      <h1>Ocurrió un problema</h1>
+      <p>Algo salió mal de nuestro lado. El error quedó registrado para su revisión. Intenta nuevamente en unos minutos.</p>
+      <a class="boton boton-primario" href="/">Volver al inicio</a>
+    </div>
+  </main>
+</body>
+</html>

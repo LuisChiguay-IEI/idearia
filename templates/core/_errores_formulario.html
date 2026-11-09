@@ -1,0 +1,12 @@
+{% load idearia %}
+{% if form.non_field_errors %}
+  <div class="alerta alerta-error" role="alert">
+    {% icono "alerta" %}
+    <div class="errores-formulario">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
+  </div>
+{% elif form.errors %}
+  <div class="alerta alerta-error" role="alert">
+    {% icono "alerta" %}
+    <p>Revisa los campos marcados en rojo.</p>
+  </div>
+{% endif %}
