@@ -164,6 +164,13 @@ DB_SSLMODE="require"
 
 **5. Comprobar en Supabase**
 
+Para generar la evidencia de la conexión (motor, SSL, tablas y últimos usuarios) en `docs/evidencias/`:
+
+```powershell
+.\.venv\Scripts\python.exe manage.py verificar_bd --guardar
+```
+
+
 1. Registra un usuario **nuevo** desde Idearia (<http://127.0.0.1:8001/registro/>).
 2. En Supabase abre **Table Editor > public > usuarios_usuario** y verifica que aparece la fila.
 3. Revisa también `planificaciones_ambito` (3 filas) y `planificaciones_nucleo` (8 filas), que crea la migración de datos.

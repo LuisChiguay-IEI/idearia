@@ -164,10 +164,10 @@ Las correcciones se verificaron con una nueva ejecución de las 102 pruebas (reg
 
 | ID | Recomendación | Basada en |
 |---|---|---|
-| R-01 | Ejecutar CP-055 en cuanto el proyecto de Supabase esté creado: registrar un usuario y adjuntar la captura del *Table Editor*. | D-10 |
+| R-01 | Ejecutar CP-055 en cuanto el proyecto de Supabase esté creado: registrar un usuario, ejecutar `manage.py verificar_bd --guardar` y adjuntar la captura del *Table Editor*. | D-10 |
 | R-02 | Repetir `scripts/prueba_carga.py` con `DB_ENGINE="supabase"` y comparar con esta línea base. | D-09 |
 | R-03 | En producción, usar un servidor WSGI con varios procesos (`waitress` en Windows o `gunicorn` en Linux) detrás de HTTPS y medir otra vez la carga. | D-09 |
-| R-04 | Realizar la prueba de usabilidad con 5 educadoras/es (RNF-08) y registrar el tiempo y el éxito por tarea. | CP-059 |
+| R-04 | Realizar la prueba de usabilidad con 5 educadoras/es (RNF-08) siguiendo [`pruebas/protocolo_usabilidad_CP059.md`](pruebas/protocolo_usabilidad_CP059.md). | CP-059 |
 | R-05 | Con varios procesos, mover el bloqueo de login a una caché compartida (BD o Redis). | CP-038 |
 | R-06 | Agregar la recuperación de contraseña por correo cuando haya un servidor SMTP. | Alcance |
 | R-07 | Si el hosting no tiene disco persistente, mover `media_protegida/` a un *bucket* privado de Supabase Storage. | 01_implementacion §12 |

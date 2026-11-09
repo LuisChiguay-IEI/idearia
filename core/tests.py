@@ -115,6 +115,17 @@ class IntegracionBaseDatosTests(PruebaIdearia):
         self.assertEqual(Ambito.objects.count(), 3)
         self.assertEqual(Nucleo.objects.count(), 8)
 
+    def test_comando_verificar_bd(self):
+        """El comando de verificación informa el motor y no muestra credenciales."""
+        crear_usuario(email="visible@prueba.test")
+        salida = StringIO()
+        call_command("verificar_bd", stdout=salida)
+        texto = salida.getvalue()
+        self.assertIn(f"Motor (connection.vendor): {connection.vendor}", texto)
+        self.assertIn("Migraciones pendientes: 0", texto)
+        self.assertIn("visible@prueba.test", texto)
+        self.assertNotIn("PASSWORD", texto.upper().replace("CONTRASEÑA", ""))
+
     @mock.patch.dict(os.environ, {"DEMO_PASSWORD": "Clave-Demo-Prueba-1"})
     def test_comando_cargar_demo(self):
         salida = StringIO()
