@@ -313,3 +313,11 @@ Para producciÃ³n se recomienda un servidor WSGI como `waitress` o `gunicorn` en 
 | Errores de *acceso denegado* al instalar paquetes | OneDrive estÃ¡ sincronizando `.venv`. Pausa la sincronizaciÃ³n mientras instalas o ubica el proyecto fuera de OneDrive. |
 | DespuÃ©s de 5 intentos no puedo iniciar sesiÃ³n | Bloqueo de seguridad temporal (15 minutos). Espera o reinicia el servidor en desarrollo. |
 | La planificaciÃ³n no se muestra en el visor | El archivo no es un PDF o DOCX vÃ¡lido o se borrÃ³ (de `media_protegida/` o de la tabla `core_archivoalmacenado`, segÃºn `ALMACENAMIENTO_ARCHIVOS`). Vuelve a adjuntarlo. |
+
+## Autoría y uso académico
+
+**Idearia** es un proyecto académico desarrollado por **Luis Chiguay** para Proyecto Integrado de Ingeniería en Informática – INACAP.
+
+Copyright © 2026 Luis Chiguay. Todos los derechos reservados.
+
+El código fuente, documentación y diseño de este repositorio se publican con fines de evaluación académica. No se autoriza su reproducción, redistribución o presentación como trabajo propio sin autorización expresa del autor.
