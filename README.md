@@ -38,39 +38,39 @@ Cada perfil dispone de permisos y funcionalidades diferentes según su responsab
 
 Puede:
 
-- registrarse e iniciar sesión;
-- buscar ideas pedagógicas;
-- utilizar filtros de búsqueda;
-- consultar el detalle de una propuesta;
-- visualizar la planificación asociada;
-- guardar favoritos;
-- valorar contenido;
-- realizar comentarios;
+- registrarse e iniciar sesión.
+- buscar ideas pedagógicas.
+- utilizar filtros de búsqueda.
+- consultar el detalle de una propuesta.
+- visualizar la planificación asociada.
+- guardar favoritos.
+- valorar contenido.
+- realizar comentarios.
 - solicitar acreditación como Profesional Colaborador/a.
 
 ### Profesional Colaborador/a
 
 Puede:
 
-- registrar propuestas pedagógicas;
-- adjuntar una planificación en formato permitido;
-- guardar propuestas como borrador;
-- enviarlas a revisión;
-- consultar su estado;
-- recibir observaciones;
+- registrar propuestas pedagógicas.
+- adjuntar una planificación en formato permitido.
+- guardar propuestas como borrador.
+- enviarlas a revisión.
+- consultar su estado.
+- recibir observaciones.
 - corregir y reenviar propuestas.
 
 ### Administrador/a
 
 Puede:
 
-- revisar solicitudes de acreditación;
-- aprobar o rechazar colaboradores;
-- revisar propuestas pedagógicas;
-- aprobar, rechazar o solicitar correcciones;
-- publicar o retirar contenido;
-- gestionar usuarios;
-- moderar comentarios;
+- revisar solicitudes de acreditación.
+- aprobar o rechazar colaboradores.
+- revisar propuestas pedagógicas.
+- aprobar, rechazar o solicitar correcciones.
+- publicar o retirar contenido.
+- gestionar usuarios.
+- moderar comentarios.
 - consultar registros de auditoría.
 
 Los permisos son validados desde el servidor y no dependen únicamente de la interfaz.
