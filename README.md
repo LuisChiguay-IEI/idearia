@@ -6,8 +6,8 @@ Idearia es una plataforma web para **Educación Parvularia**. Permite que Educad
 
 > Idearia **no genera ni reemplaza** la planificación del educador: es un repositorio de apoyo e inspiración.
 
-Proyecto Integrado · Evaluación Sumativa N.º 3 · INACAP
-Autor: Luis Chiguay
+Proyecto Integrado · Evaluación Sumativa N.º 3 · INACAP  
+**Autor:** Luis Chiguay
 
 **Aplicación publicada:** <https://idearia.onrender.com>. En el plan gratuito, la primera visita después de 15 minutos sin uso tarda cerca de un minuto en cargar.
 
@@ -23,9 +23,10 @@ Autor: Luis Chiguay
 6. [Datos de demostración](#datos-de-demostración)
 7. [Pruebas](#pruebas)
 8. [Estructura del proyecto](#estructura-del-proyecto)
-9. [Producción y HTTPS](#producción-y-https)
-10. [Errores frecuentes](#errores-frecuentes)
-11. [Documentación adicional](#documentación-adicional)
+9. [Publicar en Render](#publicar-en-render-producción)
+10. [Producción y HTTPS](#producción-y-https)
+11. [Errores frecuentes](#errores-frecuentes)
+12. [Autoría y uso académico](#autoría-y-uso-académico)
 
 ---
 
@@ -33,31 +34,35 @@ Autor: Luis Chiguay
 
 | Perfil | Puede |
 |---|---|
-| **Educador/a de Párvulos** | Registrarse, iniciar y cerrar sesión, buscar ideas, filtrar (nivel, edad, ámbito, núcleo, objetivo de aprendizaje, duración, materiales, categoría), ver el detalle, ver la planificación dentro de Idearia (sin descarga), gestionar favoritos, valorar, comentar y solicitar acreditación como colaborador/a. |
-| **Profesional Colaborador/a** | Todo lo anterior, más: crear propuestas, adjuntar la planificación (PDF o Word .docx), guardar borradores, enviar a revisión, consultar estados y observaciones, y corregir y reenviar cuando se le solicitan cambios. |
-| **Administrador/a** | Panel general, revisión de solicitudes de colaboradores (aprobar o rechazar), revisión de propuestas (aprobar, rechazar, solicitar corrección, publicar, retirar), gestión de usuarios (activar y desactivar), moderación de comentarios y registro de acciones (auditoría). |
+| **Educador/a de Párvulos** | Registrarse, iniciar y cerrar sesión, buscar ideas, filtrar por nivel, edad, ámbito, núcleo, objetivo de aprendizaje, duración, materiales y categoría, ver el detalle, visualizar la planificación dentro de Idearia sin descarga directa, gestionar favoritos, valorar, comentar y solicitar acreditación como colaborador/a. |
+| **Profesional Colaborador/a** | Todo lo anterior, más: crear propuestas, adjuntar la planificación en PDF o Word `.docx`, guardar borradores, enviar a revisión, consultar estados y observaciones, corregir y reenviar cuando se soliciten cambios. |
+| **Administrador/a** | Panel general, revisión de solicitudes de colaboradores, aprobación o rechazo de acreditaciones, revisión de propuestas, aprobación, rechazo, solicitud de corrección, publicación, retiro de contenido, gestión de usuarios, moderación de comentarios y registro de acciones de auditoría. |
 
-Los permisos se validan **en el servidor**. Por ejemplo, un Educador que escribe `/administracion/` en la barra de direcciones recibe un error 403.
+Los permisos se validan **en el servidor**. Por ejemplo, un Educador que intenta ingresar manualmente a `/administracion/` recibe un error 403.
+
+---
 
 ## Tecnologías
 
 | Componente | Tecnología |
 |---|---|
 | Lenguaje | Python 3.12 |
-| Framework | Django 5.2 (ORM, Templates, autenticación, formularios) |
+| Framework | Django 5.2 (ORM, Templates, autenticación y formularios) |
 | Base de datos | PostgreSQL en **Supabase** (SQLite opcional para desarrollo local) |
 | Conector | `psycopg[binary]` |
 | Configuración | Variables de entorno en `.env` con `python-dotenv` |
 | Frontend | Django Templates + HTML + CSS + JavaScript mínimo |
-| Visor de documentos | PDF.js 3.11 (incluido en `static/vendor`) y `mammoth` (Word .docx → HTML) |
+| Visor de documentos | PDF.js 3.11 incluido en `static/vendor` y `mammoth` para convertir Word `.docx` → HTML |
 | Control de versiones | Git / GitHub |
+
+---
 
 ## Requisitos
 
-- **Python 3.12** ([python.org](https://www.python.org/downloads/) o `winget install -e --id Python.Python.3.12`)
+- **Python 3.12**
 - **Git**
-- **Visual Studio Code** (recomendado)
-- Una cuenta gratuita en **Supabase** (para la base de datos final)
+- **Visual Studio Code** recomendado
+- Una cuenta gratuita en **Supabase** para la base de datos final
 
 Verifica la versión de Python:
 
@@ -65,18 +70,22 @@ Verifica la versión de Python:
 py -3.12 --version
 ```
 
+---
+
 ## Instalación en Windows (PowerShell)
 
-Ejecuta cada comando por separado en la terminal de VS Code (**Terminal > New Terminal**). No hace falta activar el entorno virtual: se usa su ejecutable directamente.
+Ejecuta cada comando por separado en la terminal de VS Code (**Terminal > New Terminal**).
 
-**1. Clonar el repositorio y entrar a la carpeta**
+No hace falta activar manualmente el entorno virtual, ya que se utiliza directamente su ejecutable.
+
+### 1. Clonar el repositorio y entrar a la carpeta
 
 ```powershell
 git clone <URL_DEL_REPOSITORIO> idearia
 cd idearia
 ```
 
-**2. Crear el entorno virtual e instalar las dependencias**
+### 2. Crear el entorno virtual e instalar las dependencias
 
 ```powershell
 py -3.12 -m venv .venv
@@ -84,7 +93,9 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-**3. Crear el archivo `.env`** (si ya existe, no lo sobrescribas)
+### 3. Crear el archivo `.env`
+
+Si ya existe, no lo sobrescribas.
 
 ```powershell
 Copy-Item .env.example .env
@@ -96,9 +107,9 @@ Genera una clave secreta y pégala en `SECRET_KEY` dentro de `.env`:
 .\.venv\Scripts\python.exe -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-Define también `DEMO_PASSWORD` (mínimo 10 caracteres) si vas a cargar los datos de demostración.
+Define también `DEMO_PASSWORD` con un mínimo de 10 caracteres si vas a cargar los datos de demostración.
 
-**4. Crear las tablas y verificar**
+### 4. Crear las tablas y verificar
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py makemigrations
@@ -106,35 +117,57 @@ Define también `DEMO_PASSWORD` (mínimo 10 caracteres) si vas a cargar los dato
 .\.venv\Scripts\python.exe manage.py check
 ```
 
-`makemigrations` debería responder *No changes detected*, porque las migraciones ya vienen en el repositorio.
+`makemigrations` debería responder `No changes detected`, porque las migraciones ya vienen incluidas en el repositorio.
 
-**5. Crear el superusuario (Administrador técnico)**
+### 5. Crear el superusuario
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py createsuperuser
 ```
 
-Pide correo, nombres, apellidos, RUT (formato `12345678-9`) y contraseña. El superusuario queda con rol Administrador/a.
+Solicita correo, nombres, apellidos, RUT en formato `12345678-9` y contraseña.
 
-**6. Ejecutar el servidor**
+El superusuario queda configurado con rol de Administrador/a.
+
+### 6. Ejecutar el servidor
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py runserver 8001
 ```
 
-Abre <http://127.0.0.1:8001/>. Detén el servidor con `Ctrl+C`.
+Abre:
+
+<http://127.0.0.1:8001/>
+
+Para detener el servidor utiliza:
+
+```text
+Ctrl + C
+```
+
+---
 
 ## Conectar con Supabase (PostgreSQL)
 
-Solo cambia la sección `DATABASES` de `settings.py`, que lee estos valores desde `.env`. Los modelos, vistas y plantillas no se modifican.
+Idearia utiliza PostgreSQL mediante Supabase.
 
-**1. Crear el proyecto en Supabase**
+La configuración de `DATABASES` en `settings.py` obtiene los valores mediante variables de entorno almacenadas en `.env`.
 
-1. Entra a <https://supabase.com> y crea una cuenta (GitHub o correo).
-2. Crea una organización (plan Free) y un **proyecto nuevo**. Guarda en privado la **contraseña de la base de datos**.
-3. En el proyecto, abre **Connect > Connection string > Session pooler**. Copia el host, el puerto, el nombre de la BD y el usuario.
+Los modelos, vistas y plantillas no necesitan modificarse para cambiar entre SQLite y PostgreSQL si utilizan correctamente el ORM de Django.
 
-**2. Editar `.env`** con tus datos (ejemplo ilustrativo):
+### 1. Crear el proyecto en Supabase
+
+1. Entra a <https://supabase.com>.
+2. Crea una cuenta con GitHub o correo electrónico.
+3. Crea una organización utilizando el plan Free.
+4. Crea un proyecto nuevo.
+5. Guarda de forma privada la contraseña de la base de datos.
+6. En el proyecto abre **Connect > Connection string > Session pooler**.
+7. Copia el host, puerto, nombre de la base de datos y usuario.
+
+### 2. Editar `.env`
+
+Ejemplo ilustrativo:
 
 ```ini
 DB_ENGINE="supabase"
@@ -146,17 +179,28 @@ DB_PASSWORD="TU_CONTRASENA_DE_BD"
 DB_SSLMODE="require"
 ```
 
-- `DB_HOST` lleva solo el servidor, sin `postgresql://`.
-- `DB_PASSWORD` es la contraseña de PostgreSQL, no la de tu cuenta de Supabase ni una API key.
-- **Nunca subas `.env` a Git**: ya está excluido en `.gitignore`.
+Consideraciones:
 
-**3. Verificar la conexión** (resultado esperado: `Motor: postgresql`)
+- `DB_HOST` lleva solamente el servidor, sin `postgresql://`.
+- `DB_PASSWORD` corresponde a la contraseña de PostgreSQL.
+- No corresponde a la contraseña de la cuenta de Supabase ni a una API Key.
+- **Nunca subas `.env` a Git**. Este archivo ya está excluido mediante `.gitignore`.
+
+### 3. Verificar la conexión
+
+Resultado esperado:
+
+```text
+Motor: postgresql
+```
+
+Comando:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py shell -c "from django.db import connection; connection.ensure_connection(); print('Motor:', connection.vendor); print('BD:', connection.settings_dict['NAME'])"
 ```
 
-**4. Crear las tablas en Supabase y cargar datos**
+### 4. Crear las tablas en Supabase y cargar datos
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py migrate
@@ -165,51 +209,111 @@ DB_SSLMODE="require"
 .\.venv\Scripts\python.exe manage.py runserver 8001
 ```
 
-**5. Comprobar en Supabase**
+### 5. Comprobar en Supabase
 
-Para ver el estado de la conexión (motor, SSL, migraciones pendientes, tablas y últimos usuarios):
+Para verificar el estado de la conexión, motor, SSL, migraciones pendientes, tablas y últimos usuarios:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py verificar_bd
 ```
 
-Agrega `--guardar CARPETA` si quieres guardar el resultado en un archivo de texto.
+También se puede guardar el resultado en un archivo:
 
-1. Registra un usuario **nuevo** desde Idearia (<http://127.0.0.1:8001/registro/>).
-2. En Supabase abre **Table Editor > public > usuarios_usuario** y verifica que aparece la fila.
-3. Revisa también `planificaciones_ambito` (3 filas) y `planificaciones_nucleo` (8 filas), que crea la migración de datos.
+```powershell
+.\.venv\Scripts\python.exe manage.py verificar_bd --guardar CARPETA
+```
 
-> Los registros que creaste en SQLite **no se copian** a Supabase. Las migraciones crean las tablas vacías, salvo los catálogos.
+Para comprobar manualmente:
 
-### Configuración usada en este proyecto (recomendada)
+1. Registra un usuario nuevo desde Idearia en:
 
-En vez de conectar Django con el usuario administrador `postgres`, Idearia usa un **usuario de base de datos propio**, `idearia_app`. Ese usuario solo puede crear y usar tablas en el esquema `public` (principio de mínimo privilegio). Para crearlo, abre **SQL Editor** en Supabase y ejecuta:
+   <http://127.0.0.1:8001/registro/>
+
+2. En Supabase abre:
+
+   **Table Editor > public > usuarios_usuario**
+
+3. Comprueba que aparece el nuevo registro.
+
+4. Revisa también:
+
+   - `planificaciones_ambito`
+   - `planificaciones_nucleo`
+
+Los registros creados previamente utilizando SQLite **no se copian automáticamente a Supabase**.
+
+Las migraciones crean las tablas correspondientes, junto con los catálogos configurados mediante migraciones de datos.
+
+---
+
+### Configuración utilizada en este proyecto
+
+En lugar de conectar Django directamente utilizando el usuario administrador `postgres`, Idearia puede utilizar un usuario propio de base de datos llamado:
+
+```text
+idearia_app
+```
+
+Este usuario aplica el principio de **mínimo privilegio**.
+
+Ejemplo de configuración mediante SQL Editor de Supabase:
 
 ```sql
 CREATE ROLE idearia_app LOGIN PASSWORD 'una-contraseña-larga-y-aleatoria';
+
 GRANT CONNECT ON DATABASE postgres TO idearia_app;
+
 GRANT USAGE, CREATE ON SCHEMA public TO idearia_app;
 ```
 
-En `.env` usa `DB_USER="idearia_app.ID_DEL_PROYECTO"` y esa contraseña. El host y el puerto son los mismos del Session pooler.
+Luego en `.env` se utiliza:
 
-Seguridad adicional:
-- Las tablas creadas por `idearia_app` no otorgan permisos a los roles `anon` y `authenticated` de la API REST pública de Supabase.
-- La migración `core/0002_activar_rls_postgresql` activa **Row Level Security** en todas las tablas. Nadie puede leerlas por la API de Supabase, y Django, como dueño de las tablas, no se ve afectado.
+```ini
+DB_USER="idearia_app.ID_DEL_PROYECTO"
+```
 
-Rendimiento:
-- Con el Session pooler, `settings.py` desactiva los cursores del lado del servidor (`DISABLE_SERVER_SIDE_CURSORS`).
-- En producción, define `DB_CONN_MAX_AGE="60"` para reutilizar conexiones.
-- Elige la región de Supabase más cercana al servidor de la aplicación (desde Chile: *South America, São Paulo*).
+junto con la contraseña correspondiente.
+
+El host y puerto son los mismos utilizados por el Session Pooler.
+
+### Seguridad adicional
+
+- Las tablas creadas por `idearia_app` no otorgan permisos directos a los roles públicos `anon` y `authenticated` de Supabase.
+- La migración `core/0002_activar_rls_postgresql` activa **Row Level Security** en las tablas correspondientes.
+- Django se conecta utilizando su usuario autorizado de base de datos.
+
+### Rendimiento
+
+- Con Session Pooler, `settings.py` desactiva los cursores del lado del servidor mediante `DISABLE_SERVER_SIDE_CURSORS`.
+- En producción puede definirse:
+
+```ini
+DB_CONN_MAX_AGE="60"
+```
+
+para reutilizar conexiones.
+
+- Se recomienda elegir una región de Supabase cercana al servidor donde se ejecuta la aplicación.
+
+---
 
 ## Datos de demostración
 
+Para cargar datos de prueba:
+
 ```powershell
 .\.venv\Scripts\python.exe manage.py cargar_demo
+```
+
+Para borrar y regenerar los datos:
+
+```powershell
 .\.venv\Scripts\python.exe manage.py cargar_demo --reiniciar
 ```
 
-La segunda forma borra y recrea los datos de demostración. El comando crea 13 propuestas (9 publicadas y 4 en otros estados), valoraciones, comentarios, favoritos, solicitudes y estos usuarios ficticios (dominio reservado `.test`):
+El comando crea propuestas en distintos estados, valoraciones, comentarios, favoritos y solicitudes.
+
+Usuarios ficticios de demostración:
 
 | Correo | Perfil |
 |---|---|
@@ -217,107 +321,187 @@ La segunda forma borra y recrea los datos de demostración. El comando crea 13 p
 | `colaboradora@idearia.test` | Profesional Colaborador/a |
 | `colaborador2@idearia.test` | Profesional Colaborador/a |
 | `educadora@idearia.test` | Educador/a de Párvulos |
-| `postulante@idearia.test` | Educador/a con una solicitud de acreditación pendiente |
+| `postulante@idearia.test` | Educador/a con solicitud de acreditación pendiente |
 
-La contraseña de todos es la que definiste en `DEMO_PASSWORD` dentro de `.env`; no está escrita en el código. Las planificaciones de demostración se generan automáticamente: son documentos de prueba, no planificaciones reales.
+La contraseña utilizada corresponde al valor configurado en:
+
+```text
+DEMO_PASSWORD
+```
+
+dentro del archivo `.env`.
+
+La contraseña **no está escrita directamente en el código**.
+
+Las planificaciones de demostración se generan automáticamente y corresponden a documentos utilizados únicamente para pruebas.
+
+---
 
 ## Pruebas
 
-**Pruebas automatizadas**: 102 pruebas que cubren 55 de los 60 casos del plan (funcionales, de seguridad, casos borde e integración).
+Idearia cuenta con pruebas automatizadas funcionales, de seguridad, integración y casos borde.
+
+Actualmente existen:
+
+**102 pruebas automatizadas que cubren 55 de los 60 casos definidos en el plan de pruebas.**
+
+Ejecutar todas las pruebas:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py test
+```
+
+Ejecutar mostrando mayor detalle:
+
+```powershell
 .\.venv\Scripts\python.exe manage.py test --verbosity 2
 ```
 
-Si tu `.env` apunta a Supabase, ejecuta las pruebas con SQLite. Django necesita crear una base temporal y el usuario `idearia_app` no tiene ese permiso:
+Si `.env` apunta a Supabase, las pruebas deben ejecutarse utilizando SQLite:
 
 ```powershell
 $env:DB_ENGINE="sqlite"; .\.venv\Scripts\python.exe manage.py test
 ```
 
-La segunda forma muestra el detalle de cada caso. Las pruebas usan una base de datos temporal y una carpeta temporal para los archivos: no modifican tus datos.
+Django utiliza una base de datos temporal y una carpeta temporal para los archivos durante las pruebas.
+
+Esto evita modificar los datos reales almacenados en Supabase.
+
+---
 
 ## Estructura del proyecto
 
-```
+```text
 idearia/
-├── config/            Configuración (settings.py, urls.py)
-├── core/              Inicio, panel admin, auditoría, validación de archivos, cabeceras de seguridad
-├── usuarios/          Modelo Usuario (rol), registro, login, permisos por rol, gestión de usuarios
-├── colaboradores/     Solicitudes de acreditación y su revisión
-├── planificaciones/   Propuestas, catálogos, búsqueda, visor, flujo de revisión
-├── interacciones/     Favoritos, valoraciones y comentarios
-├── notificaciones/    Notificaciones internas
-├── templates/         Plantillas HTML (base, errores 403/404/500 y una carpeta por app)
-├── static/            CSS, JavaScript, íconos y PDF.js
-├── media_protegida/   Archivos subidos en desarrollo (NO se sube a Git, sin URL pública)
-├── .env.example       Plantilla de variables de entorno (sin credenciales)
-├── render.yaml        Configuración del despliegue en Render
-└── requirements.txt
+├── config/              Configuración general (settings.py, urls.py)
+├── core/                Inicio, panel admin, auditoría, validación de archivos y seguridad
+├── usuarios/            Modelo Usuario, registro, login, roles y gestión de usuarios
+├── colaboradores/       Solicitudes de acreditación y revisión
+├── planificaciones/     Propuestas, catálogos, búsqueda, visor y flujo de revisión
+├── interacciones/       Favoritos, valoraciones y comentarios
+├── notificaciones/      Notificaciones internas
+├── templates/           Plantillas HTML y páginas de error
+├── static/              CSS, JavaScript, íconos y PDF.js
+├── media_protegida/     Archivos utilizados durante desarrollo local
+├── .env.example         Plantilla de variables de entorno sin credenciales
+├── render.yaml          Configuración de despliegue en Render
+└── requirements.txt     Dependencias de Python
 ```
+
+---
 
 ## Publicar en Render (producción)
 
-Idearia está desplegada en **Render** (servidor de aplicación) y conectada a **Supabase** (base de datos y archivos). El archivo `render.yaml` define el servicio, en la región Oregón, junto a la base de datos.
+Idearia se encuentra desplegada utilizando:
 
-1. Sube el código a GitHub (rama `main`).
-2. En <https://dashboard.render.com> elige **New + > Blueprint** y selecciona el repositorio.
-3. Completa `DB_USER` y `DB_PASSWORD` con los valores de tu `.env`. El resto viene en `render.yaml`, y `SECRET_KEY` la genera Render.
-4. Presiona **Deploy Blueprint**. Render ejecuta `pip install`, `collectstatic` y `migrate`, e inicia `gunicorn`.
-5. Cada `git push` a `main` vuelve a desplegar automáticamente.
+- **Render** como servidor de aplicación.
+- **Supabase** como base de datos PostgreSQL y almacenamiento asociado.
 
-Notas de producción:
-- `whitenoise` sirve los estilos y el JavaScript.
-- Los archivos subidos se guardan en la base de datos (`ALMACENAMIENTO_ARCHIVOS="bd"`), porque el disco gratuito de Render se borra al reiniciar.
-- Las variables `RENDER_EXTERNAL_HOSTNAME` y `USAR_PROXY_HTTPS` configuran el dominio y HTTPS.
+El archivo:
+
+```text
+render.yaml
+```
+
+contiene la configuración necesaria para el despliegue.
+
+### Flujo de despliegue
+
+1. Subir el código a GitHub en la rama `main`.
+2. En <https://dashboard.render.com> seleccionar **New + > Blueprint**.
+3. Seleccionar el repositorio de Idearia.
+4. Configurar las variables necesarias de entorno.
+5. Ejecutar **Deploy Blueprint**.
+
+Render ejecuta automáticamente procesos como:
+
+```text
+pip install
+collectstatic
+migrate
+gunicorn
+```
+
+Cada:
+
+```powershell
+git push
+```
+
+realizado sobre `main` puede generar automáticamente un nuevo despliegue.
+
+### Consideraciones de producción
+
+- `whitenoise` sirve los archivos estáticos.
+- Los documentos subidos se almacenan de forma persistente según la configuración de producción.
+- El disco gratuito de Render no debe utilizarse como almacenamiento permanente de documentos.
+- `RENDER_EXTERNAL_HOSTNAME` y `USAR_PROXY_HTTPS` permiten configurar correctamente dominio y HTTPS.
+
+---
 
 ## Producción y HTTPS
 
-Con `DEBUG="False"` en `.env` se activan automáticamente:
+Cuando:
 
-- redirección a HTTPS (`SECURE_SSL_REDIRECT`);
-- cookies de sesión y CSRF solo por HTTPS (`*_COOKIE_SECURE`);
-- HSTS por un año (`SECURE_HSTS_SECONDS`).
+```ini
+DEBUG="False"
+```
 
-Además debes configurar:
+se activan configuraciones de seguridad para producción.
 
-- `ALLOWED_HOSTS` con el dominio;
-- `CSRF_TRUSTED_ORIGINS` con `https://tu-dominio`;
-- `USAR_PROXY_HTTPS="True"` si el hosting termina HTTPS en un proxy (Render, Railway, Nginx).
+Entre ellas:
 
-Verificación:
+- redirección a HTTPS mediante `SECURE_SSL_REDIRECT`;
+- cookies de sesión seguras;
+- cookies CSRF seguras;
+- HSTS mediante `SECURE_HSTS_SECONDS`.
+
+También deben configurarse:
+
+```text
+ALLOWED_HOSTS
+CSRF_TRUSTED_ORIGINS
+USAR_PROXY_HTTPS
+```
+
+Para verificar la configuración:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py check --deploy
 ```
 
-Para producción se recomienda un servidor WSGI como `waitress` o `gunicorn` en lugar de `runserver`, y servir los estáticos con `collectstatic`.
+En producción se utiliza un servidor WSGI como `gunicorn` en lugar de `runserver`.
+
+---
 
 ## Errores frecuentes
 
 | Error | Causa y solución |
 |---|---|
-| `py -3.12` → *No suitable Python runtime found* | Python 3.12 no está instalado. Instálalo con `winget install -e --id Python.Python.3.12`. |
-| `No module named django` | Usaste otro Python. Repite la instalación con `.\.venv\Scripts\python.exe -m pip install -r requirements.txt`. |
-| `ImproperlyConfigured: Falta SECRET_KEY` | No existe `.env` o falta la clave. Ejecuta `Copy-Item .env.example .env` y genera una `SECRET_KEY`. |
-| `faltan en .env: DB_HOST, DB_USER...` | `DB_ENGINE="supabase"` sin los datos de conexión. Completa los valores del Session pooler. |
-| `password authentication failed` | `DB_USER` o `DB_PASSWORD` incorrectos. El usuario tiene la forma `postgres.ID_DEL_PROYECTO`. |
-| Timeout o `could not translate host name` | Host mal copiado, sin internet o red que bloquea el puerto 5432. Revisa `DB_HOST` y prueba en otra red. |
-| `relation ... does not exist` | No ejecutaste `migrate` en la base actual. |
-| `Port is already in use` | Usa otro puerto: `runserver 8002`. |
-| `permission denied to create database` al ejecutar pruebas | `.env` apunta a Supabase. Ejecuta las pruebas con `$env:DB_ENGINE="sqlite"` (ver [Pruebas](#pruebas)). |
-| `Max client connections reached` (Supabase) | Usaste `DB_CONN_MAX_AGE` mayor que 0 con `runserver`, que abre una conexión por petición. Déjalo en `0` en desarrollo. |
-| Páginas lentas con Supabase | La base está en otra región (cada consulta es un viaje de red). Usa la región más cercana y `DB_CONN_MAX_AGE="60"` en producción. |
-| Ves `Motor: sqlite` en vez de `postgresql` | `DB_ENGINE` sigue en `"sqlite"` o `.env` no está en la carpeta de `manage.py`. |
-| Errores de *acceso denegado* al instalar paquetes | OneDrive está sincronizando `.venv`. Pausa la sincronización mientras instalas o ubica el proyecto fuera de OneDrive. |
-| Después de 5 intentos no puedo iniciar sesión | Bloqueo de seguridad temporal (15 minutos). Espera o reinicia el servidor en desarrollo. |
-| La planificación no se muestra en el visor | El archivo no es un PDF o DOCX válido o se borró (de `media_protegida/` o de la tabla `core_archivoalmacenado`, según `ALMACENAMIENTO_ARCHIVOS`). Vuelve a adjuntarlo. |
+| `py -3.12` → `No suitable Python runtime found` | Python 3.12 no está instalado. Instálalo antes de continuar. |
+| `No module named django` | Se está utilizando otro Python. Repite la instalación utilizando `.\.venv\Scripts\python.exe`. |
+| `ImproperlyConfigured: Falta SECRET_KEY` | No existe `.env` o falta la clave. Crea `.env` desde `.env.example` y genera una `SECRET_KEY`. |
+| Faltan `DB_HOST`, `DB_USER`, etc. | `DB_ENGINE="supabase"` está configurado sin los datos de conexión completos. |
+| `password authentication failed` | Revisa `DB_USER` y `DB_PASSWORD`. |
+| Timeout o `could not translate host name` | Revisa `DB_HOST`, conexión a internet y puerto. |
+| `relation ... does not exist` | Ejecuta `migrate` en la base de datos correspondiente. |
+| `Port is already in use` | Utiliza otro puerto, por ejemplo `runserver 8002`. |
+| `permission denied to create database` durante pruebas | Ejecuta las pruebas utilizando SQLite. |
+| `Max client connections reached` | Revisa la configuración de conexiones de Supabase. |
+| Páginas lentas con Supabase | Utiliza una región cercana y conexiones persistentes en producción. |
+| `Motor: sqlite` en vez de `postgresql` | Revisa `DB_ENGINE` y la ubicación de `.env`. |
+| Error de acceso al instalar paquetes | Revisa permisos o sincronización de OneDrive. |
+| Después de 5 intentos no puedo iniciar sesión | Existe un bloqueo temporal de seguridad de 15 minutos. |
+| La planificación no aparece en el visor | Comprueba que el PDF o DOCX sea válido y que el archivo exista en el almacenamiento configurado. |
 
-## Autor�a y uso acad�mico
+---
 
-**Idearia** es un proyecto acad�mico desarrollado por **Luis Chiguay** para Proyecto Integrado de Ingenier�a en Inform�tica � INACAP.
+## Autoría y uso académico
 
-Copyright � 2026 Luis Chiguay. Todos los derechos reservados.
+**Idearia** es un proyecto académico desarrollado por **Luis Chiguay** para la asignatura Proyecto Integrado de Ingeniería en Informática – INACAP.
 
-El c�digo fuente, documentaci�n y dise�o de este repositorio se publican con fines de evaluaci�n acad�mica. No se autoriza su reproducci�n, redistribuci�n o presentaci�n como trabajo propio sin autorizaci�n expresa del autor.
+Copyright © 2026 Luis Chiguay. Todos los derechos reservados.
+
+El código fuente, documentación, diseño, estructura y demás contenidos de este repositorio se publican con fines de evaluación académica y revisión del proyecto.
+
+No se autoriza su reproducción, redistribución, publicación como trabajo propio ni reutilización total o parcial en otras entregas académicas sin autorización expresa del autor.
