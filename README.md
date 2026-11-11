@@ -122,15 +122,15 @@ Idearia utiliza **PostgreSQL mediante Supabase**.
 
 La estructura contempla, entre otras, información relacionada con:
 
-- usuarios;
-- solicitudes de colaboradores;
-- propuestas pedagógicas;
-- planificaciones;
-- categorías;
-- comentarios;
-- valoraciones;
-- favoritos;
-- notificaciones;
+- usuarios.
+- solicitudes de colaboradores.
+- propuestas pedagógicas.
+- planificaciones.
+- categorías.
+- comentarios.
+- valoraciones.
+- favoritos.
+- notificaciones.
 - registros de auditoría.
 
 La conexión utiliza variables de entorno para evitar almacenar credenciales directamente en el código.
@@ -145,19 +145,19 @@ Durante el desarrollo se incorporaron distintos controles de seguridad.
 
 Entre ellos:
 
-- autenticación mediante Django;
-- almacenamiento seguro de contraseñas;
-- control de acceso basado en roles;
-- validación de permisos desde el servidor;
-- protección CSRF;
-- validación de formularios;
-- validación de archivos;
-- manejo controlado de documentos;
-- variables de entorno para información sensible;
-- HTTPS en producción;
-- cookies seguras;
-- protección frente a múltiples intentos fallidos de autenticación;
-- registro de operaciones administrativas;
+- autenticación mediante Django.
+- almacenamiento seguro de contraseñas.
+- control de acceso basado en roles.
+- validación de permisos desde el servidor.
+- protección CSRF.
+- validación de formularios.
+- validación de archivos.
+- manejo controlado de documentos.
+- variables de entorno para información sensible.
+- HTTPS en producción.
+- cookies seguras.
+- protección frente a múltiples intentos fallidos de autenticación.
+- registro de operaciones administrativas.
 - restricciones de acceso a la base de datos.
 
 El sistema también utiliza medidas de seguridad adicionales en PostgreSQL y Supabase para limitar el acceso directo a la información.
@@ -170,7 +170,7 @@ Las planificaciones pedagógicas son documentos aportados por Profesionales Cola
 
 Los formatos considerados por la plataforma son principalmente:
 
-- PDF;
+- PDF.
 - DOCX.
 
 Los documentos pueden visualizarse dentro de Idearia mediante un visor integrado.
@@ -221,15 +221,15 @@ Aprobada / Rechazada
 
 Idearia cuenta con un plan de pruebas que considera:
 
-- pruebas funcionales;
-- seguridad;
-- integración;
-- casos borde;
-- validación de roles y permisos;
-- archivos;
-- autenticación;
-- interacción con la base de datos;
-- rendimiento;
+- pruebas funcionales.
+- seguridad.
+- integración.
+- casos borde.
+- validación de roles y permisos.
+- archivos.
+- autenticación.
+- interacción con la base de datos.
+- rendimiento.
 - usabilidad.
 
 También se desarrollaron pruebas automatizadas mediante las herramientas de testing de Django.
@@ -267,20 +267,20 @@ https://idearia.onrender.com
 
 El proyecto actualmente cuenta con:
 
-- interfaces funcionales;
-- autenticación;
-- perfiles y permisos;
-- base de datos PostgreSQL;
-- conexión con Supabase;
-- gestión de propuestas;
-- acreditación de colaboradores;
-- visor de documentos;
-- favoritos;
-- valoraciones;
-- comentarios;
-- administración;
-- seguridad;
-- pruebas automatizadas;
+- interfaces funcionales.
+- autenticación.
+- perfiles y permisos.
+- base de datos PostgreSQL.
+- conexión con Supabase.
+- gestión de propuestas.
+- acreditación de colaboradores.
+- visor de documentos.
+- favoritos.
+- valoraciones.
+- comentarios.
+- administración.
+- seguridad.
+- pruebas automatizadas.
 - despliegue en producción.
 
 El desarrollo corresponde a la etapa de implementación y validación de la solución.
