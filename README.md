@@ -7,6 +7,7 @@ Idearia es una plataforma web para **Educación Parvularia**. Permite que Educad
 > Idearia **no genera ni reemplaza** la planificación del educador: es un repositorio de apoyo e inspiración.
 
 Proyecto Integrado · Evaluación Sumativa N.º 3 · INACAP
+Autor: Luis Chiguay
 
 **Aplicación publicada:** <https://idearia.onrender.com>. En el plan gratuito, la primera visita después de 15 minutos sin uso tarda cerca de un minuto en cargar.
 
