@@ -1,131 +1,849 @@
 {% extends "base_panel.html" %}
 {% load idearia %}
-{% block titulo %}Revisión de contenido{% endblock %}
+
+{% block titulo %}
+  Revisión de contenido
+{% endblock %}
 
 {% block panel %}
+
 <div class="encabezado-pagina">
+
   <div>
-    <p class="eyebrow">Administrador</p>
-    <h1>Revisión y gestión de contenido</h1>
-    <p>Valida, aprueba, publica o rechaza las propuestas enviadas por los profesionales colaboradores.</p>
+
+    <p class="eyebrow">
+      Administrador
+    </p>
+
+    <h1>
+      Revisión y gestión de contenido
+    </h1>
+
+    <p>
+      Valida, aprueba, publica o rechaza las propuestas enviadas
+      por los profesionales colaboradores.
+    </p>
+
   </div>
-  <form method="get" class="buscador-superior" role="search">
+
+  <form
+    method="get"
+    class="buscador-superior"
+    role="search"
+  >
+
     {% icono "buscar" %}
-    <input type="hidden" name="estado" value="{{ estado_actual }}">
-    <label class="visualmente-oculto" for="buscar-propuesta">Buscar propuesta</label>
-    <input id="buscar-propuesta" type="search" name="q" value="{{ q }}" maxlength="100" placeholder="Buscar por título o autor/a...">
+
+    <input
+      type="hidden"
+      name="estado"
+      value="{{ estado_actual }}"
+    >
+
+    <label
+      class="visualmente-oculto"
+      for="buscar-propuesta"
+    >
+      Buscar propuesta
+    </label>
+
+    <input
+      id="buscar-propuesta"
+      type="search"
+      name="q"
+      value="{{ q }}"
+      maxlength="100"
+      placeholder="Buscar por título o autor/a..."
+    >
+
   </form>
+
 </div>
 
-<nav class="pestanas" aria-label="Filtrar por estado">
+
+<!-- =====================================================
+     FILTROS POR ESTADO
+     ===================================================== -->
+
+<nav
+  class="pestanas"
+  aria-label="Filtrar por estado"
+>
+
   {% for valor, etiqueta, cantidad in pestanas %}
-    <a class="{% if estado_actual == valor %}activo{% endif %}" href="?estado={{ valor }}">{{ etiqueta }} <span class="contador">{{ cantidad }}</span></a>
+
+    <a
+      class="{% if estado_actual == valor %}activo{% endif %}"
+      href="?estado={{ valor }}"
+    >
+
+      {{ etiqueta }}
+
+      <span class="contador">
+        {{ cantidad }}
+      </span>
+
+    </a>
+
   {% endfor %}
-  <a class="{% if estado_actual == 'TODAS' %}activo{% endif %}" href="?estado=TODAS">Todas <span class="contador">{{ total }}</span></a>
+
+  <a
+    class="{% if estado_actual == 'TODAS' %}activo{% endif %}"
+    href="?estado=TODAS"
+  >
+
+    Todas
+
+    <span class="contador">
+      {{ total }}
+    </span>
+
+  </a>
+
 </nav>
 
+
 <div class="diseno-revision">
-  <section>
-    {% if pagina.object_list %}
-      <div class="lista-revision">
-        {% for p in pagina %}
-          <a class="item-revision{% if seleccion and seleccion.pk == p.pk %} seleccionado{% endif %}" href="?estado={{ estado_actual }}&amp;id={{ p.pk }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}{% if pagina.number > 1 %}&amp;page={{ pagina.number }}{% endif %}">
-            <span class="burbuja-icono {{ p|tema }}">{% icono p|icono_ambito %}</span>
-            <span class="texto">
-              <strong>{{ p.titulo }}</strong>
-              <small>{{ p.colaborador.get_full_name }}</small>
-              <small>{{ p.get_nivel_educativo_display|default:"Sin nivel" }} · {{ p.nucleo|default:"Sin núcleo" }}</small>
-            </span>
-            <span class="lado"><span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span>{{ p.fecha_envio|date:"d M Y" }}</span>
-          </a>
-        {% endfor %}
-      </div>
-      {% include "core/_paginacion.html" %}
-    {% else %}
-      <div class="tarjeta vacio">{% icono "check" %}<h3>No hay propuestas en este estado</h3><p>Cuando un colaborador envíe una propuesta aparecerá aquí.</p></div>
-    {% endif %}
-  </section>
+
+
+  <!-- =====================================================
+       LISTADO DE PROPUESTAS
+       ===================================================== -->
 
   <section>
+
+    {% if pagina.object_list %}
+
+      <div class="lista-revision">
+
+        {% for p in pagina %}
+
+          <a
+            class="item-revision{% if seleccion and seleccion.pk == p.pk %} seleccionado{% endif %}"
+            href="?estado={{ estado_actual }}&amp;id={{ p.pk }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}{% if pagina.number > 1 %}&amp;page={{ pagina.number }}{% endif %}"
+          >
+
+            <span class="burbuja-icono {{ p|tema }}">
+              {% icono p|icono_ambito %}
+            </span>
+
+            <span class="texto">
+
+              <strong>
+                {{ p.titulo }}
+              </strong>
+
+              <small>
+                {{ p.colaborador.get_full_name }}
+              </small>
+
+              <small>
+                {{ p.get_nivel_educativo_display|default:"Sin nivel" }}
+                ·
+                {{ p.nucleo|default:"Sin núcleo" }}
+              </small>
+
+              {% if p.imagen_portada %}
+
+                <small>
+                  {% icono "check" %}
+                  Incluye imagen de portada
+                </small>
+
+              {% endif %}
+
+            </span>
+
+            <span class="lado">
+
+              <span class="estado estado-{{ p.estado|lower }}">
+                {{ p.get_estado_display }}
+              </span>
+
+              {{ p.fecha_envio|date:"d M Y" }}
+
+            </span>
+
+          </a>
+
+        {% endfor %}
+
+      </div>
+
+      {% include "core/_paginacion.html" %}
+
+    {% else %}
+
+      <div class="tarjeta vacio">
+
+        {% icono "check" %}
+
+        <h3>
+          No hay propuestas en este estado
+        </h3>
+
+        <p>
+          Cuando un colaborador envíe una propuesta aparecerá aquí.
+        </p>
+
+      </div>
+
+    {% endif %}
+
+  </section>
+
+
+  <!-- =====================================================
+       DETALLE DE LA PROPUESTA
+       ===================================================== -->
+
+  <section>
+
     {% if seleccion %}
+
       {% with p=seleccion %}
+
       <article class="tarjeta">
+
+
+        <!-- CABECERA -->
+
         <div class="encabezado-pagina">
+
           <div class="seccion-titulo">
-            <span class="burbuja-icono {{ p|tema }}">{% icono p|icono_ambito %}</span>
+
+            <span class="burbuja-icono {{ p|tema }}">
+              {% icono p|icono_ambito %}
+            </span>
+
             <div>
-              <h2>{{ p.titulo }}</h2>
-              <small class="ayuda">{{ p.colaborador.get_full_name }} · {{ p.get_nivel_educativo_display|default:"Sin nivel" }} ({{ p.get_edad_recomendada_display|default:"edad no indicada" }}) · {{ p.nucleo|default:"Sin núcleo" }}</small><br>
-              <small class="ayuda">{% icono "reloj" %} Enviada el {{ p.fecha_envio|date:"j \d\e F \d\e Y, H:i"|default:"—" }}{% if p.revisado_por %} · Última revisión: {{ p.revisado_por.get_full_name }}{% endif %}</small>
+
+              <h2>
+                {{ p.titulo }}
+              </h2>
+
+              <small class="ayuda">
+
+                {{ p.colaborador.get_full_name }}
+
+                ·
+
+                {{ p.get_nivel_educativo_display|default:"Sin nivel" }}
+
+                ({{ p.get_edad_recomendada_display|default:"edad no indicada" }})
+
+                ·
+
+                {{ p.nucleo|default:"Sin núcleo" }}
+
+              </small>
+
+              <br>
+
+              <small class="ayuda">
+
+                {% icono "reloj" %}
+
+                Enviada el
+                {{ p.fecha_envio|date:"j \d\e F \d\e Y, H:i"|default:"—" }}
+
+                {% if p.revisado_por %}
+
+                  · Última revisión:
+                  {{ p.revisado_por.get_full_name }}
+
+                {% endif %}
+
+              </small>
+
             </div>
+
           </div>
-          <span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span>
+
+          <span class="estado estado-{{ p.estado|lower }}">
+            {{ p.get_estado_display }}
+          </span>
+
         </div>
+
+
+        <!-- DATOS FALTANTES -->
 
         {% if faltantes %}
-          <div class="alerta alerta-warning">{% icono "alerta" %}<p><strong>Información obligatoria faltante:</strong> {{ faltantes|join:", " }}. No se puede aprobar hasta completarla.</p></div>
+
+          <div class="alerta alerta-warning">
+
+            {% icono "alerta" %}
+
+            <p>
+
+              <strong>
+                Información obligatoria faltante:
+              </strong>
+
+              {{ faltantes|join:", " }}.
+
+              No se puede aprobar hasta completarla.
+
+            </p>
+
+          </div>
+
         {% endif %}
 
-        <h3>Descripción de la propuesta</h3>
-        <p>{{ p.descripcion|linebreaksbr|default:"—" }}</p>
+
+        <!-- DESCRIPCIÓN -->
+
+        <h3>
+          Descripción de la propuesta
+        </h3>
+
+        <p>
+          {{ p.descripcion|linebreaksbr|default:"—" }}
+        </p>
+
+
+        <!-- DATOS PEDAGÓGICOS -->
 
         <div class="bloque-datos">
-          <div><h3>{% icono "objetivo" %} Objetivo de aprendizaje</h3><p>{{ p.objetivo_aprendizaje|default:"—" }}</p></div>
-          <div><h3>{% icono "hoja" %} Ámbito y núcleo</h3><p>{{ p.ambito|default:"—" }}{% if p.nucleo %}<br>{{ p.nucleo }}{% endif %}</p></div>
-          <div><h3>{% icono "estrella" %} Categorías</h3><p>{% for c in p.categorias.all %}{{ c.nombre }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</p></div>
-          <div><h3>{% icono "caja" %} Materiales · Duración</h3><p>{% for m in p.materiales.all %}{{ m.nombre }}{% if not forloop.last %}, {% endif %}{% empty %}Sin materiales{% endfor %}<br>{% if p.duracion_minutos %}{{ p.duracion_minutos }} minutos{% endif %}</p></div>
+
+          <div>
+
+            <h3>
+              {% icono "objetivo" %}
+              Objetivo de aprendizaje
+            </h3>
+
+            <p>
+              {{ p.objetivo_aprendizaje|default:"—" }}
+            </p>
+
+          </div>
+
+          <div>
+
+            <h3>
+              {% icono "hoja" %}
+              Ámbito y núcleo
+            </h3>
+
+            <p>
+
+              {{ p.ambito|default:"—" }}
+
+              {% if p.nucleo %}
+
+                <br>
+                {{ p.nucleo }}
+
+              {% endif %}
+
+            </p>
+
+          </div>
+
+          <div>
+
+            <h3>
+              {% icono "estrella" %}
+              Categorías
+            </h3>
+
+            <p>
+
+              {% for c in p.categorias.all %}
+
+                {{ c.nombre }}
+
+                {% if not forloop.last %}
+                  ,
+                {% endif %}
+
+              {% empty %}
+
+                —
+
+              {% endfor %}
+
+            </p>
+
+          </div>
+
+          <div>
+
+            <h3>
+              {% icono "caja" %}
+              Materiales · Duración
+            </h3>
+
+            <p>
+
+              {% for m in p.materiales.all %}
+
+                {{ m.nombre }}
+
+                {% if not forloop.last %}
+                  ,
+                {% endif %}
+
+              {% empty %}
+
+                Sin materiales
+
+              {% endfor %}
+
+              <br>
+
+              {% if p.duracion_minutos %}
+
+                {{ p.duracion_minutos }} minutos
+
+              {% endif %}
+
+            </p>
+
+          </div>
+
         </div>
+
+
+        <!-- =====================================================
+             IMAGEN DE PORTADA
+             ===================================================== -->
+
+        <section class="tarjeta">
+
+          <h3 class="seccion-titulo">
+
+            <span class="burbuja-icono tema-0">
+              {% icono "ojo" %}
+            </span>
+
+            Imagen de portada
+
+          </h3>
+
+          {% if p.imagen_portada %}
+
+            <div class="alerta alerta-info">
+
+              {% icono "escudo" %}
+
+              <p>
+
+                <strong>
+                  Revisión obligatoria de la portada:
+                </strong>
+
+                comprueba que la imagen sea coherente con la experiencia
+                pedagógica y con la planificación adjunta.
+
+                También verifica que no exponga información personal
+                o sensible y que sea apropiada para su publicación.
+
+              </p>
+
+            </div>
+
+            <br>
+
+            <img
+              src="{% url 'planificaciones:imagen_portada' p.pk %}"
+              alt="Imagen de portada propuesta para {{ p.titulo }}"
+              class="documento-imagen"
+            >
+
+            <p class="ayuda">
+
+              <strong>
+                Archivo:
+              </strong>
+
+              {{ p.nombre_imagen|default:"Imagen de portada" }}
+
+              {% if p.tipo_imagen %}
+
+                · {{ p.tipo_imagen|upper }}
+
+              {% endif %}
+
+              {% if p.tamano_imagen %}
+
+                · {{ p.tamano_imagen|filesizeformat }}
+
+              {% endif %}
+
+            </p>
+
+          {% else %}
+
+            <div class="alerta alerta-info">
+
+              {% icono "hoja" %}
+
+              <p>
+
+                El colaborador decidió
+
+                <strong>
+                  no utilizar una imagen de portada.
+                </strong>
+
+                Si la propuesta es publicada, Idearia mostrará
+                automáticamente el ícono correspondiente a su ámbito.
+
+              </p>
+
+            </div>
+
+          {% endif %}
+
+        </section>
+
+
+        <!-- =====================================================
+             PLANIFICACIÓN ADJUNTA
+             ===================================================== -->
 
         <div class="tarjeta-planificacion">
+
           <div class="vista-previa">
+
             {% if p.archivo %}
-              <span class="tipo-doc {{ p.tipo_archivo }}">{{ p.tipo_archivo|upper }}</span>
-              <ul><li><strong>Planificación pedagógica adjunta</strong></li><li>{{ p.nombre_archivo }} · {{ p.tamano_archivo|filesizeformat }}</li></ul>
-              <a class="boton boton-primario boton-pequeno" href="{% url 'planificaciones:visor' p.pk %}">{% icono "ojo" %} Ver planificación</a>
+
+              <span class="tipo-doc {{ p.tipo_archivo }}">
+                {{ p.tipo_archivo|upper }}
+              </span>
+
+              <ul>
+
+                <li>
+                  <strong>
+                    Planificación pedagógica adjunta
+                  </strong>
+                </li>
+
+                <li>
+
+                  {{ p.nombre_archivo }}
+
+                  ·
+
+                  {{ p.tamano_archivo|filesizeformat }}
+
+                </li>
+
+              </ul>
+
+              <a
+                class="boton boton-primario boton-pequeno"
+                href="{% url 'planificaciones:visor' p.pk %}"
+              >
+
+                {% icono "ojo" %}
+
+                Ver planificación
+
+              </a>
+
             {% else %}
-              <p>{% icono "alerta" %} Sin planificación adjunta.</p>
+
+              <p>
+
+                {% icono "alerta" %}
+
+                Sin planificación adjunta.
+
+              </p>
+
             {% endif %}
+
           </div>
+
         </div>
+
+
+        <!-- =====================================================
+             RECORDATORIO DE REVISIÓN CONJUNTA
+             ===================================================== -->
+
+        {% if p.imagen_portada and p.archivo %}
+
+          <div class="alerta alerta-warning">
+
+            {% icono "alerta" %}
+
+            <p>
+
+              <strong>
+                Antes de aprobar y publicar:
+              </strong>
+
+              revisa la imagen de portada y la planificación en conjunto
+              para comprobar que ambas representen la misma experiencia
+              pedagógica.
+
+              Si la portada no es concordante, utiliza
+              <strong>Solicitar cambios</strong>
+              e indica la corrección necesaria al colaborador.
+
+            </p>
+
+          </div>
+
+        {% endif %}
+
+
+        <!-- =====================================================
+             AUTOR / ACREDITACIÓN
+             ===================================================== -->
 
         <div class="bloque-datos">
+
           <div>
-            <h3>{% icono "usuario" %} Antecedentes del autor/a</h3>
-            <p>{{ p.colaborador.get_full_name }} · {{ p.colaborador.email }}</p>
+
+            <h3>
+              {% icono "usuario" %}
+              Antecedentes del autor/a
+            </h3>
+
+            <p>
+              {{ p.colaborador.get_full_name }}
+              ·
+              {{ p.colaborador.email }}
+            </p>
+
             {% if acreditacion %}
-              <p><span class="etiqueta etiqueta-menta">{% icono "verificado" %} Verificado/a</span> {{ acreditacion.titulo_profesional }} · {{ acreditacion.institucion }} ({{ acreditacion.anio_titulacion }})</p>
-              <p><a href="{% url 'colaboradores:admin_detalle' acreditacion.pk %}">Ver acreditación</a></p>
+
+              <p>
+
+                <span class="etiqueta etiqueta-menta">
+
+                  {% icono "verificado" %}
+
+                  Verificado/a
+
+                </span>
+
+                {{ acreditacion.titulo_profesional }}
+                ·
+                {{ acreditacion.institucion }}
+                ({{ acreditacion.anio_titulacion }})
+
+              </p>
+
+              <p>
+
+                <a href="{% url 'colaboradores:admin_detalle' acreditacion.pk %}">
+                  Ver acreditación
+                </a>
+
+              </p>
+
             {% else %}
-              <p><span class="etiqueta etiqueta-durazno">Sin acreditación aprobada registrada</span></p>
+
+              <p>
+
+                <span class="etiqueta etiqueta-durazno">
+                  Sin acreditación aprobada registrada
+                </span>
+
+              </p>
+
             {% endif %}
+
           </div>
+
           {% if p.observacion_revision %}
-            <div><h3>{% icono "comentario" %} Última observación</h3><p>{{ p.observacion_revision }}</p></div>
+
+            <div>
+
+              <h3>
+                {% icono "comentario" %}
+                Última observación
+              </h3>
+
+              <p>
+                {{ p.observacion_revision }}
+              </p>
+
+            </div>
+
           {% endif %}
+
         </div>
 
+
+        <!-- =====================================================
+             ACCIONES DE REVISIÓN
+             ===================================================== -->
+
         {% if acciones_disponibles %}
-          <form method="post" action="{% url 'planificaciones:admin_accion' p.pk %}" class="formulario acciones-revision">
+
+          <form
+            method="post"
+            action="{% url 'planificaciones:admin_accion' p.pk %}"
+            class="formulario acciones-revision"
+          >
+
             {% csrf_token %}
-            <h3>{% icono "escudo" %} Acciones de revisión</h3>
+
+            <h3>
+              {% icono "escudo" %}
+              Acciones de revisión
+            </h3>
+
             {% include "core/_campo.html" with campo=form.observacion %}
+
             <div class="grupo-botones derecha">
-              {% if "corregir" in acciones_disponibles %}<button class="boton boton-contorno" name="accion" value="corregir" type="submit">{% icono "editar" %} Solicitar cambios</button>{% endif %}
-              {% if "rechazar" in acciones_disponibles %}<button class="boton boton-peligro" name="accion" value="rechazar" type="submit">{% icono "cerrar" %} Rechazar</button>{% endif %}
-              {% if "aprobar" in acciones_disponibles %}<button class="boton boton-exito" name="accion" value="aprobar" type="submit">{% icono "check" %} Aprobar</button>{% endif %}
-              {% if "publicar" in acciones_disponibles %}<button class="boton boton-primario" name="accion" value="publicar" type="submit">{% icono "libro" %} Publicar en el catálogo</button>{% endif %}
-              {% if "retirar" in acciones_disponibles %}<button class="boton boton-peligro" name="accion" value="retirar" type="submit">{% icono "cerrar" %} Retirar del catálogo</button>{% endif %}
-              {% if "republicar" in acciones_disponibles %}<button class="boton boton-primario" name="accion" value="republicar" type="submit">{% icono "reintentar" %} Volver a publicar</button>{% endif %}
+
+
+              {% if "corregir" in acciones_disponibles %}
+
+                <button
+                  class="boton boton-contorno"
+                  name="accion"
+                  value="corregir"
+                  type="submit"
+                >
+
+                  {% icono "editar" %}
+
+                  Solicitar cambios
+
+                </button>
+
+              {% endif %}
+
+
+              {% if "rechazar" in acciones_disponibles %}
+
+                <button
+                  class="boton boton-peligro"
+                  name="accion"
+                  value="rechazar"
+                  type="submit"
+                >
+
+                  {% icono "cerrar" %}
+
+                  Rechazar
+
+                </button>
+
+              {% endif %}
+
+
+              {% if "aprobar" in acciones_disponibles %}
+
+                <button
+                  class="boton boton-exito"
+                  name="accion"
+                  value="aprobar"
+                  type="submit"
+                >
+
+                  {% icono "check" %}
+
+                  Aprobar y publicar
+
+                </button>
+
+              {% endif %}
+
+
+              {% if "publicar" in acciones_disponibles %}
+
+                <button
+                  class="boton boton-primario"
+                  name="accion"
+                  value="publicar"
+                  type="submit"
+                >
+
+                  {% icono "libro" %}
+
+                  Publicar en el catálogo
+
+                </button>
+
+              {% endif %}
+
+
+              {% if "retirar" in acciones_disponibles %}
+
+                <button
+                  class="boton boton-peligro"
+                  name="accion"
+                  value="retirar"
+                  type="submit"
+                >
+
+                  {% icono "cerrar" %}
+
+                  Retirar del catálogo
+
+                </button>
+
+              {% endif %}
+
+
+              {% if "republicar" in acciones_disponibles %}
+
+                <button
+                  class="boton boton-primario"
+                  name="accion"
+                  value="republicar"
+                  type="submit"
+                >
+
+                  {% icono "reintentar" %}
+
+                  Volver a publicar
+
+                </button>
+
+              {% endif %}
+
             </div>
+
           </form>
+
         {% else %}
-          <p class="ayuda acciones-revision">No hay acciones disponibles para el estado «{{ p.get_estado_display }}».</p>
+
+          <p class="ayuda acciones-revision">
+
+            No hay acciones disponibles para el estado
+            «{{ p.get_estado_display }}».
+
+          </p>
+
         {% endif %}
+
       </article>
+
       {% endwith %}
+
     {% else %}
-      <div class="tarjeta vacio">{% icono "lista" %}<h3>Selecciona una propuesta</h3><p>El detalle aparecerá aquí.</p></div>
+
+      <div class="tarjeta vacio">
+
+        {% icono "lista" %}
+
+        <h3>
+          Selecciona una propuesta
+        </h3>
+
+        <p>
+          El detalle aparecerá aquí.
+        </p>
+
+      </div>
+
     {% endif %}
+
   </section>
+
 </div>
+
 {% endblock %}

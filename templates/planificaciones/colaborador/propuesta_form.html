@@ -1,97 +1,516 @@
 {% extends "base_panel.html" %}
 {% load idearia %}
-{% block titulo %}{% if propuesta.pk %}Editar propuesta{% else %}Nueva planificación{% endif %}{% endblock %}
+
+{% block titulo %}
+  {% if propuesta.pk %}
+    Editar propuesta
+  {% else %}
+    Nueva planificación
+  {% endif %}
+{% endblock %}
 
 {% block panel %}
+
 <div class="diseno-formulario-propuesta">
+
   <section class="tarjeta">
+
     <div class="encabezado-formulario">
-      <span class="burbuja-mas">{% if propuesta.pk %}{% icono "editar" %}{% else %}{% icono "mas" %}{% endif %}</span>
+
+      <span class="burbuja-mas">
+        {% if propuesta.pk %}
+          {% icono "editar" %}
+        {% else %}
+          {% icono "mas" %}
+        {% endif %}
+      </span>
+
       <div>
-        <h1>{% if propuesta.pk %}Editar planificación{% else %}Crear nueva planificación{% endif %}</h1>
-        <p class="ayuda">Comparte una experiencia o estrategia pedagógica para Educación Parvularia que ya hayas elaborado. Los campos con <span class="obligatorio">*</span> son obligatorios para enviar a revisión.</p>
+
+        <h1>
+          {% if propuesta.pk %}
+            Editar planificación
+          {% else %}
+            Crear nueva planificación
+          {% endif %}
+        </h1>
+
+        <p class="ayuda">
+          Comparte una experiencia o estrategia pedagógica para Educación Parvularia que ya hayas elaborado.
+          Los campos con
+          <span class="obligatorio">*</span>
+          son obligatorios para enviar a revisión.
+        </p>
+
       </div>
+
     </div>
 
     {% if propuesta.estado == "REQUIERE_CORRECCION" and propuesta.observacion_revision %}
-      <div class="alerta alerta-warning">{% icono "alerta" %}<p><strong>Correcciones solicitadas:</strong> {{ propuesta.observacion_revision }}</p></div>
+
+      <div class="alerta alerta-warning">
+
+        {% icono "alerta" %}
+
+        <p>
+          <strong>Correcciones solicitadas:</strong>
+          {{ propuesta.observacion_revision }}
+        </p>
+
+      </div>
+
       <br>
+
     {% endif %}
 
     {% include "core/_errores_formulario.html" %}
 
-    <form method="post" enctype="multipart/form-data" class="formulario" novalidate>
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      class="formulario"
+      novalidate
+    >
+
       {% csrf_token %}
+
       {% include "core/_campo.html" with campo=form.titulo %}
 
       <div class="fila-campos">
+
         {% include "core/_campo.html" with campo=form.nivel_educativo obligatorio=True %}
+
         {% include "core/_campo.html" with campo=form.duracion_minutos obligatorio=True %}
+
       </div>
+
       <div class="fila-campos">
+
         {% include "core/_campo.html" with campo=form.edad_recomendada obligatorio=True %}
+
         {% include "core/_campo.html" with campo=form.nucleo obligatorio=True %}
+
       </div>
 
       {% include "core/_campo.html" with campo=form.objetivo_aprendizaje obligatorio=True %}
+
       {% include "core/_campo.html" with campo=form.descripcion obligatorio=True %}
+
       {% include "core/_campo.html" with campo=form.categorias obligatorio=True opciones="dos-columnas" %}
+
       {% include "core/_campo.html" with campo=form.materiales opciones="dos-columnas" %}
 
-      <div class="campo{% if form.archivo.errors %} campo-con-error{% endif %}">
-        <label for="{{ form.archivo.id_for_label }}" class="etiqueta-con-icono">{% icono "archivo" %} {{ form.archivo.label }} <span class="obligatorio">*</span></label>
-        <p class="ayuda">Adjunta la planificación que elaboraste previamente. Idearia no crea planificaciones: las comparte.</p>
-        <div class="zona-archivo">
-          {% icono "subir" "icono-grande" %}
-          <div class="detalle">
-            <strong>Selecciona un archivo</strong><br>
-            Formatos aceptados: .docx y .pdf · Tamaño máximo: 10 MB.
-            <br><span id="aviso-archivo">{% if propuesta.archivo %}Si seleccionas otro archivo, reemplazará al actual.{% else %}Ningún archivo seleccionado{% endif %}</span>
-          </div>
-          <input type="file" name="archivo" id="{{ form.archivo.id_for_label }}" accept=".pdf,.docx" data-max-mb="10" data-aviso="aviso-archivo">
+
+      <!-- =====================================================
+           IMAGEN DE PORTADA OPCIONAL
+           ===================================================== -->
+
+      <div class="campo{% if form.imagen_portada.errors %} campo-con-error{% endif %}">
+
+        <label
+          for="{{ form.imagen_portada.id_for_label }}"
+          class="etiqueta-con-icono"
+        >
+
+          {% icono "archivo" %}
+
+          Imagen de portada
+
+          <span class="etiqueta etiqueta-menta">
+            Opcional
+          </span>
+
+        </label>
+
+        <p class="ayuda">
+
+          Puedes agregar una imagen relacionada con la experiencia pedagógica.
+
+          Si prefieres no subir ninguna, Idearia mostrará automáticamente
+          el ícono correspondiente al ámbito de aprendizaje.
+
+        </p>
+
+        <div class="alerta alerta-info">
+
+          {% icono "escudo" %}
+
+          <p>
+
+            <strong>Revisión de la imagen:</strong>
+
+            si agregas una portada, el Administrador la revisará
+            junto con la planificación antes de publicar la propuesta.
+
+            La imagen debe ser coherente con la experiencia pedagógica
+            y no debe contener información personal o sensible de niños,
+            niñas u otras personas sin autorización.
+
+          </p>
+
         </div>
-        {% if propuesta.archivo %}
-          <p class="archivo-actual">{% icono "check" %} Archivo actual: {{ propuesta.nombre_archivo }} ({{ propuesta.tamano_archivo|filesizeformat }})</p>
+
+        <div class="zona-archivo">
+
+          {% icono "subir" "icono-grande" %}
+
+          <div class="detalle">
+
+            <strong>
+              Selecciona una imagen
+            </strong>
+
+            <br>
+
+            Formatos aceptados:
+            .jpg, .jpeg y .png
+
+            <br>
+
+            <span id="aviso-imagen">
+
+              {% if propuesta.imagen_portada %}
+
+                Si seleccionas otra imagen,
+                reemplazará la portada actual.
+
+              {% else %}
+
+                Ninguna imagen seleccionada.
+                Se utilizará el ícono del ámbito.
+
+              {% endif %}
+
+            </span>
+
+          </div>
+
+          <input
+            type="file"
+            name="imagen_portada"
+            id="{{ form.imagen_portada.id_for_label }}"
+            accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+            data-aviso="aviso-imagen"
+          >
+
+        </div>
+
+        {% if propuesta.imagen_portada %}
+
+          <div class="imagen-portada-actual">
+
+            <p class="archivo-actual">
+
+              {% icono "check" %}
+
+              Imagen actual:
+
+              {{ propuesta.nombre_imagen|default:"Imagen de portada" }}
+
+              {% if propuesta.tamano_imagen %}
+
+                ({{ propuesta.tamano_imagen|filesizeformat }})
+
+              {% endif %}
+
+            </p>
+
+            <label class="opcion-quitar-imagen">
+
+              {{ form.quitar_imagen_portada }}
+
+              <span>
+                Quitar esta imagen y volver a usar el ícono automático
+              </span>
+
+            </label>
+
+          </div>
+
         {% endif %}
-        {% for error in form.archivo.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+
+        {% for error in form.imagen_portada.errors %}
+
+          <p class="error-campo">
+            {{ error }}
+          </p>
+
+        {% endfor %}
+
+        {% for error in form.quitar_imagen_portada.errors %}
+
+          <p class="error-campo">
+            {{ error }}
+          </p>
+
+        {% endfor %}
+
       </div>
+
+
+      <!-- =====================================================
+           PLANIFICACIÓN PEDAGÓGICA
+           ===================================================== -->
+
+      <div class="campo{% if form.archivo.errors %} campo-con-error{% endif %}">
+
+        <label
+          for="{{ form.archivo.id_for_label }}"
+          class="etiqueta-con-icono"
+        >
+
+          {% icono "archivo" %}
+
+          {{ form.archivo.label }}
+
+          <span class="obligatorio">
+            *
+          </span>
+
+        </label>
+
+        <p class="ayuda">
+
+          Adjunta la planificación que elaboraste previamente.
+
+          Idearia no crea planificaciones:
+          las comparte y organiza como apoyo pedagógico.
+
+        </p>
+
+        <div class="zona-archivo">
+
+          {% icono "subir" "icono-grande" %}
+
+          <div class="detalle">
+
+            <strong>
+              Selecciona un archivo
+            </strong>
+
+            <br>
+
+            Formatos aceptados:
+            .docx y .pdf · Tamaño máximo: 10 MB.
+
+            <br>
+
+            <span id="aviso-archivo">
+
+              {% if propuesta.archivo %}
+
+                Si seleccionas otro archivo,
+                reemplazará al actual.
+
+              {% else %}
+
+                Ningún archivo seleccionado.
+
+              {% endif %}
+
+            </span>
+
+          </div>
+
+          <input
+            type="file"
+            name="archivo"
+            id="{{ form.archivo.id_for_label }}"
+            accept=".pdf,.docx"
+            data-max-mb="10"
+            data-aviso="aviso-archivo"
+          >
+
+        </div>
+
+        {% if propuesta.archivo %}
+
+          <p class="archivo-actual">
+
+            {% icono "check" %}
+
+            Archivo actual:
+
+            {{ propuesta.nombre_archivo }}
+
+            ({{ propuesta.tamano_archivo|filesizeformat }})
+
+          </p>
+
+        {% endif %}
+
+        {% for error in form.archivo.errors %}
+
+          <p class="error-campo">
+            {{ error }}
+          </p>
+
+        {% endfor %}
+
+      </div>
+
+
+      <!-- =====================================================
+           BOTONES
+           ===================================================== -->
 
       <div class="grupo-botones derecha">
-        <button type="submit" name="accion" value="guardar" class="boton boton-menta">{% icono "guardar" %} Guardar borrador</button>
-        <button type="submit" name="accion" value="enviar" class="boton boton-primario">{% icono "enviar" %} {% if propuesta.estado == "REQUIERE_CORRECCION" %}Reenviar a revisión{% else %}Enviar a revisión{% endif %}</button>
+
+        <button
+          type="submit"
+          name="accion"
+          value="guardar"
+          class="boton boton-menta"
+        >
+
+          {% icono "guardar" %}
+
+          Guardar borrador
+
+        </button>
+
+        <button
+          type="submit"
+          name="accion"
+          value="enviar"
+          class="boton boton-primario"
+        >
+
+          {% icono "enviar" %}
+
+          {% if propuesta.estado == "REQUIERE_CORRECCION" %}
+
+            Reenviar a revisión
+
+          {% else %}
+
+            Enviar a revisión
+
+          {% endif %}
+
+        </button>
+
       </div>
+
     </form>
+
   </section>
 
+
+  <!-- =====================================================
+       PANEL LATERAL
+       ===================================================== -->
+
   <aside>
+
     <section class="tarjeta">
+
       <div class="encabezado-pagina">
-        <h2>Mis planificaciones</h2>
-        <a href="{% url 'planificaciones:mis_propuestas' %}">Ver todas</a>
+
+        <h2>
+          Mis planificaciones
+        </h2>
+
+        <a href="{% url 'planificaciones:mis_propuestas' %}">
+          Ver todas
+        </a>
+
       </div>
+
       <div class="lista-lateral">
-      {% for p in recientes %}
-        <div class="item-revision">
-          <span class="burbuja-icono {{ p|tema }}">{% icono p|icono_ambito %}</span>
-          <span class="texto">
-            <strong>{{ p.titulo|truncatechars:48 }}</strong>
-            <small>{{ p.get_nivel_educativo_display|default:"Sin nivel" }}</small>
-            <span class="estado estado-{{ p.estado|lower }}">{{ p.get_estado_display }}</span>
-          </span>
-        </div>
-      {% empty %}
-        <p class="ayuda">Aquí aparecerán tus propuestas.</p>
-      {% endfor %}
+
+        {% for p in recientes %}
+
+          <div class="item-revision">
+
+            <span class="burbuja-icono {{ p|tema }}">
+
+              {% icono p|icono_ambito %}
+
+            </span>
+
+            <span class="texto">
+
+              <strong>
+                {{ p.titulo|truncatechars:48 }}
+              </strong>
+
+              <small>
+                {{ p.get_nivel_educativo_display|default:"Sin nivel" }}
+              </small>
+
+              <span class="estado estado-{{ p.estado|lower }}">
+
+                {{ p.get_estado_display }}
+
+              </span>
+
+            </span>
+
+          </div>
+
+        {% empty %}
+
+          <p class="ayuda">
+
+            Aquí aparecerán tus propuestas.
+
+          </p>
+
+        {% endfor %}
+
       </div>
+
     </section>
+
     <section class="tarjeta">
-      <h3>{% icono "bombilla" %} Recomendaciones</h3>
+
+      <h3>
+
+        {% icono "bombilla" %}
+
+        Recomendaciones
+
+      </h3>
+
       <ul class="ayuda">
-        <li>Guarda como borrador si aún te falta información.</li>
-        <li>Indica un objetivo de aprendizaje claro y alineado a las Bases Curriculares.</li>
-        <li>Revisa que tu documento no incluya datos personales de niños o niñas.</li>
+
+        <li>
+          Guarda como borrador si aún te falta información.
+        </li>
+
+        <li>
+          Indica un objetivo de aprendizaje claro y alineado
+          con las Bases Curriculares.
+        </li>
+
+        <li>
+          Revisa que tu planificación no incluya datos personales
+          de niños o niñas.
+        </li>
+
+        <li>
+          Si utilizas una imagen de portada, procura que represente
+          realmente la experiencia descrita en la planificación.
+        </li>
+
+        <li>
+          Evita imágenes que permitan identificar a niños o niñas
+          sin contar con la autorización correspondiente.
+        </li>
+
+        <li>
+          Si no deseas utilizar una fotografía o ilustración,
+          puedes dejar la portada sin imagen y Idearia mantendrá
+          automáticamente los íconos visuales del sistema.
+        </li>
+
       </ul>
+
     </section>
+
   </aside>
+
 </div>
+
 {% endblock %}
