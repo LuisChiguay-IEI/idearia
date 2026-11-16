@@ -208,17 +208,44 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media_protegida"
 TAMANO_MAXIMO_ARCHIVO_MB = int(os.getenv("TAMANO_MAXIMO_ARCHIVO_MB", "10"))
 
-# ALMACENAMIENTO_ARCHIVOS="disco" -> carpeta media_protegida/ (desarrollo)
-# ALMACENAMIENTO_ARCHIVOS="bd"    -> tabla core_archivoalmacenado en Supabase (hosting sin disco persistente)
+# ALMACENAMIENTO_ARCHIVOS="disco"   -> carpeta media_protegida/ (desarrollo)
+# ALMACENAMIENTO_ARCHIVOS="bd"      -> todos los archivos en PostgreSQL/Supabase
+# ALMACENAMIENTO_ARCHIVOS="hibrido" -> portadas en Supabase Storage y resto en PostgreSQL
 ALMACENAMIENTO_ARCHIVOS = os.getenv("ALMACENAMIENTO_ARCHIVOS", "disco").strip().lower()
-STORAGES = {
-    "default": {
-        "BACKEND": (
-            "core.almacenamiento.AlmacenamientoBD"
-            if ALMACENAMIENTO_ARCHIVOS == "bd"
-            else "django.core.files.storage.FileSystemStorage"
+
+if ALMACENAMIENTO_ARCHIVOS == "disco":
+    BACKEND_ARCHIVOS = "django.core.files.storage.FileSystemStorage"
+
+elif ALMACENAMIENTO_ARCHIVOS == "bd":
+    BACKEND_ARCHIVOS = "core.almacenamiento.AlmacenamientoBD"
+
+elif ALMACENAMIENTO_ARCHIVOS == "hibrido":
+    faltantes_storage = [
+        nombre
+        for nombre in ("SUPABASE_URL", "SUPABASE_SECRET_KEY", "SUPABASE_STORAGE_BUCKET")
+        if not os.getenv(nombre)
+    ]
+    if faltantes_storage:
+        raise ImproperlyConfigured(
+            "ALMACENAMIENTO_ARCHIVOS=hibrido, pero faltan en .env: "
+            + ", ".join(faltantes_storage)
         )
-    },
+
+    SUPABASE_URL = os.getenv("SUPABASE_URL")
+    SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
+    SUPABASE_STORAGE_BUCKET = os.getenv(
+        "SUPABASE_STORAGE_BUCKET",
+        "idearia-archivos",
+    )
+    BACKEND_ARCHIVOS = "core.almacenamiento.AlmacenamientoHibrido"
+
+else:
+    raise ImproperlyConfigured(
+        'ALMACENAMIENTO_ARCHIVOS debe ser "disco", "bd" o "hibrido".'
+    )
+
+STORAGES = {
+    "default": {"BACKEND": BACKEND_ARCHIVOS},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
 }
 
