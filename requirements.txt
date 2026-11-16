@@ -1,6 +1,7 @@
 Django==5.2.19
 psycopg[binary]==3.3.8
 python-dotenv==1.2.4
+supabase==2.34.1
 mammoth==1.13.0
 # Producción (Render): servidor web y archivos estáticos
 gunicorn==26.2.0
