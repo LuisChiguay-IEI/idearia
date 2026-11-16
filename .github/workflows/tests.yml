@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/supabase-storage-portadas
+      - fix/rendimiento-portadas-storage
   pull_request:
     branches:
       - main

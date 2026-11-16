@@ -197,8 +197,18 @@ class AlmacenamientoHibrido(Storage):
         return str(name).replace("\\", "/").startswith(cls.PREFIJO_PORTADAS)
 
     def _open(self, name, mode="rb"):
-        if self._es_portada(name) and self.supabase.exists(name):
-            return self.supabase.open(name, mode)
+        if self._es_portada(name):
+            # Intentamos descargar directamente desde Supabase Storage.
+            # Así evitamos una petición previa de "exists" por cada imagen,
+            # reduciendo a la mitad las llamadas remotas del catálogo.
+            try:
+                return self.supabase.open(name, mode)
+            except Exception:
+                # Compatibilidad con portadas antiguas que todavía están
+                # almacenadas en PostgreSQL.
+                if self.bd.exists(name):
+                    return self.bd.open(name, mode)
+                raise
 
         return self.bd.open(name, mode)
 

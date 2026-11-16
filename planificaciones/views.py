@@ -277,10 +277,11 @@ def imagen_portada(request, pk):
         f'inline; filename="portada.{extension}"'
     )
 
-    # Evita que una imagen reemplazada siga apareciendo
-    # desde la caché del navegador.
+    # La caché es privada del navegador: no vuelve pública la portada.
+    # Durante cinco minutos evita descargar repetidamente la misma imagen
+    # desde Supabase al navegar entre catálogo y detalle.
     respuesta["Cache-Control"] = (
-        "no-store, private"
+        "private, max-age=300, must-revalidate"
     )
 
     # Evita que el navegador intente interpretar
