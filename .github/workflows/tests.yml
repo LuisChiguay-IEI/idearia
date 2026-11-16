@@ -1,0 +1,39 @@
+name: Pruebas Idearia
+
+on:
+  push:
+    branches:
+      - feature/supabase-storage-portadas
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  django-tests:
+    runs-on: ubuntu-latest
+
+    env:
+      SECRET_KEY: clave-temporal-solo-para-pruebas-automaticas
+      DEBUG: "True"
+      DB_ENGINE: sqlite
+      ALMACENAMIENTO_ARCHIVOS: disco
+      ALLOWED_HOSTS: 127.0.0.1,localhost
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Verificar configuración Django
+        run: python manage.py check
+
+      - name: Ejecutar pruebas
+        run: python manage.py test

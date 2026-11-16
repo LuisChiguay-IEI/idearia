@@ -37,6 +37,12 @@ services:
       - key: DB_CONN_MAX_AGE
         value: "60"
       - key: ALMACENAMIENTO_ARCHIVOS
-        value: bd
+        value: hibrido
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: idearia-archivos
       - key: ADMIN_URL
         value: admin-django/
