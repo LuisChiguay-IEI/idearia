@@ -1,0 +1,52 @@
+name: Exportar Idearia final para DreamShaper
+
+on:
+  push:
+    branches:
+      - export/idearia-final-dreamshaper
+
+jobs:
+  exportar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Preparar entrega limpia
+        run: |
+          mkdir -p export/Idearia
+          rsync -a ./ export/Idearia/ \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.env' \
+            --exclude='.venv/' \
+            --exclude='venv/' \
+            --exclude='db.sqlite3' \
+            --exclude='__pycache__/' \
+            --exclude='*.pyc' \
+            --exclude='*.pyo' \
+            --exclude='*.log' \
+            --exclude='logs/' \
+            --exclude='media_protegida/' \
+            --exclude='staticfiles/' \
+            --exclude='.pytest_cache/' \
+            --exclude='.coverage' \
+            --exclude='export/'
+          test -f export/Idearia/manage.py
+          test -f export/Idearia/requirements.txt
+          test -f export/Idearia/README.md
+          test -f export/Idearia/.env.example
+          test -f export/Idearia/render.yaml
+          if find export/Idearia -type f -name '.env' | grep -q .; then
+            echo "Se encontró un .env real en la entrega."
+            exit 1
+          fi
+
+      - name: Subir ZIP final
+        uses: actions/upload-artifact@v4
+        with:
+          name: Idearia_Final_DreamShaper
+          path: export/Idearia
+          include-hidden-files: true
+          compression-level: 6
+          retention-days: 7
