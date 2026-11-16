@@ -84,7 +84,8 @@ Los permisos son validados desde el servidor y no dependen únicamente de la int
 | Lenguaje | Python 3.12 |
 | Framework | Django 5.2 |
 | Base de datos | PostgreSQL |
-| Servicio de base de datos | Supabase |
+| Servicio de base de datos | Supabase PostgreSQL |
+| Almacenamiento de objetos | Supabase Storage |
 | ORM | Django ORM |
 | Frontend | Django Templates, HTML, CSS y JavaScript |
 | Autenticación | Django Authentication |
@@ -116,9 +117,9 @@ idearia/
 
 ---
 
-## Base de datos
+## Datos y almacenamiento
 
-Idearia utiliza **PostgreSQL mediante Supabase**.
+Idearia utiliza **PostgreSQL mediante Supabase** para la información estructurada y relacional del sistema.
 
 La estructura contempla, entre otras, información relacionada con:
 
@@ -135,7 +136,37 @@ La estructura contempla, entre otras, información relacionada con:
 
 La conexión utiliza variables de entorno para evitar almacenar credenciales directamente en el código.
 
+Las imágenes de portada nuevas pueden almacenarse en un **bucket privado de Supabase Storage**, mientras que PostgreSQL conserva las referencias y los datos de negocio. Los documentos pedagógicos continúan protegidos por el backend de Idearia.
+
 El archivo `.env` utilizado en desarrollo y producción **no forma parte del repositorio**.
+
+---
+
+## Ejecución local
+
+Requisitos:
+
+- Python 3.12 o superior.
+- pip.
+- Git.
+
+Pasos mínimos:
+
+```bash
+python -m venv .venv
+pip install -r requirements.txt
+```
+
+Luego se crea un archivo `.env` a partir de `.env.example` y se completan únicamente las variables correspondientes al entorno utilizado.
+
+Para preparar y ejecutar la aplicación:
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+Las credenciales reales de Supabase y las claves secretas no deben almacenarse en el repositorio.
 
 ---
 
@@ -183,19 +214,18 @@ La plataforma no presenta una opción directa de descarga para estos documentos.
 
 Una propuesta pedagógica no se publica automáticamente.
 
-El flujo general corresponde a:
+El flujo principal corresponde a:
 
 ```text
 Borrador
    ↓
 En revisión
-   ↓
-Aprobada / Requiere corrección / Rechazada
-   ↓
-Publicada
+   ├── Aprobar y publicar → Publicada
+   ├── Solicitar corrección → Requiere corrección
+   └── Rechazar → Rechazada
 ```
 
-El Administrador es responsable de revisar las propuestas antes de su publicación.
+El estado `Aprobada` se conserva únicamente por compatibilidad con registros anteriores. En el flujo actual, una propuesta nueva que es aprobada por el Administrador se publica directamente en el catálogo.
 
 ---
 
@@ -246,7 +276,7 @@ La solución se encuentra desplegada utilizando:
 Servidor de aplicación Django.
 
 **Supabase**  
-Base de datos PostgreSQL y servicios asociados.
+Base de datos PostgreSQL y almacenamiento privado de objetos.
 
 **GitHub**  
 Repositorio y control de versiones.
@@ -271,7 +301,8 @@ El proyecto actualmente cuenta con:
 - autenticación.
 - perfiles y permisos.
 - base de datos PostgreSQL.
-- conexión con Supabase.
+- conexión con Supabase PostgreSQL.
+- almacenamiento privado de portadas mediante Supabase Storage.
 - gestión de propuestas.
 - acreditación de colaboradores.
 - visor de documentos.
