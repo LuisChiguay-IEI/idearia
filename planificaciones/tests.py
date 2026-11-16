@@ -292,22 +292,43 @@ class RevisionAdministradorTests(PruebaIdearia):
         return self.propuesta.estado
 
     def test_cp018_cp019_aprobar_y_publicar(self):
-        """CP-018 / CP-019 / CP-023 / CP-025: aprobar y publicar; aparece en el catálogo, notifica y audita."""
+        """CP-018 / CP-019 / CP-023 / CP-025: aprobar publica directamente, notifica y audita."""
         self.accion("aprobar")
-        self.assertEqual(self.estado(), E.APROBADA)
-        self.client.force_login(crear_usuario())
-        self.assertNotContains(self.client.get(reverse("planificaciones:catalogo")), "Propuesta en revisión")
-        self.ingresar(self.admin)
-        self.accion("publicar")
         self.assertEqual(self.estado(), E.PUBLICADA)
         self.assertIsNotNone(self.propuesta.fecha_publicacion)
+
         self.client.force_login(crear_usuario())
-        self.assertContains(self.client.get(reverse("planificaciones:catalogo")), "Propuesta en revisión")
-        tipos = set(Notificacion.objects.filter(usuario=self.colaboradora).values_list("tipo", flat=True))
-        self.assertEqual(tipos, {Notificacion.Tipo.PROPUESTA_APROBADA, Notificacion.Tipo.PROPUESTA_PUBLICADA})
-        acciones = set(RegistroAccion.objects.values_list("accion", flat=True))
-        self.assertTrue({RegistroAccion.Accion.APROBAR_PROPUESTA, RegistroAccion.Accion.PUBLICAR_PROPUESTA} <= acciones)
-        self.assertEqual(RegistroAccion.objects.first().usuario, self.admin)
+        self.assertContains(
+            self.client.get(reverse("planificaciones:catalogo")),
+            "Propuesta en revisión",
+        )
+
+        tipos = set(
+            Notificacion.objects
+            .filter(usuario=self.colaboradora)
+            .values_list("tipo", flat=True)
+        )
+        self.assertEqual(
+            tipos,
+            {Notificacion.Tipo.PROPUESTA_PUBLICADA},
+        )
+
+        acciones = set(
+            RegistroAccion.objects
+            .values_list("accion", flat=True)
+        )
+        self.assertIn(
+            RegistroAccion.Accion.APROBAR_PROPUESTA,
+            acciones,
+        )
+        self.assertNotIn(
+            RegistroAccion.Accion.PUBLICAR_PROPUESTA,
+            acciones,
+        )
+        self.assertEqual(
+            RegistroAccion.objects.first().usuario,
+            self.admin,
+        )
 
     def test_cp021_rechazo_exige_motivo(self):
         """CP-021: sin motivo no se rechaza; con motivo queda Rechazada y guarda la observación."""
@@ -342,7 +363,6 @@ class RevisionAdministradorTests(PruebaIdearia):
     def test_cp022_retirar_publicacion(self):
         """CP-022: una idea retirada deja de aparecer en el catálogo."""
         self.accion("aprobar")
-        self.accion("publicar")
         self.accion("retirar", "Contenido duplicado.")
         self.assertEqual(self.estado(), E.RETIRADA)
         self.client.force_login(crear_usuario())
